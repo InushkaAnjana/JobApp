@@ -1,0 +1,152 @@
+@model JobAppHR.Models.JobPosition
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .bordered {
+        border-radius: 10px;
+        border: thin solid lightgrey;
+        padding: 5px;
+        margin: 0px;
+    }
+</style>
+
+<h3>Create - Job Position</h3>
+<div class="alert alert-info">
+    <h5 style="text-align: center">@ViewBag.Message</h5>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="JobPositionID" class="form-control" />
+            <div class="row">
+                <div class="form-group col-4">
+                    <label asp-for="JobPositionName" class="control-label"></label>
+                    <input asp-for="JobPositionName" class="form-control form-control-sm" maxlength="50" />
+                    <span asp-validation-for="JobPositionName" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group col-2">
+                    <label asp-for="JobPositionCode" class="control-label"></label>
+                    <input asp-for="JobPositionCode" class="form-control form-control-sm text-uppercase" maxlength="4" />
+                    <span asp-validation-for="JobPositionCode" class="text-danger"></span>
+                </div>
+                            
+                <div class="form-group col-2">
+                    <label asp-for="JobTemplate" class="control-label"></label>
+                    @Html.ActionLink(" ", "TemplateInfo", new{id=0} ,new { @class="fa fa-info-circle", @style="text-decoration:none;", title = "Details", target = "_blank" })
+                    <select asp-for="JobTemplate" asp-items="@ViewBag.JobTemplate" class="form-select form-select-sm">
+                    </select>
+                    <span asp-validation-for="JobTemplate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-3">
+                    <label asp-for="TalentPoolJob" class="control-label"></label>
+                    <select asp-for="TalentPoolJob" class="form-select form-select-sm">
+                        <option>YES</option>
+                        <option>NO</option>
+                    </select>
+                    <span asp-validation-for="TalentPoolJob" class="text-danger"></span>
+                </div>
+            </div>
+            <br />
+            <span class="text-muted fst-italic">Auto-derived from selected template</span>
+            <div class="row bordered">
+                <!-- Hidden inputs carry the actual values for form submission -->
+                <input type="hidden" name="OLRequired" id="OLRequiredHidden" value="1" />
+                <input type="hidden" name="ALRequired" id="ALRequiredHidden" value="1" />
+                <input type="hidden" name="HERequired" id="HERequiredHidden" value="1" />
+
+                <div class="form-group col-2">
+                    <label class="control-label">O/L Required</label>
+                    <div>
+                        <input type="radio" name="OLRequired_display" id="OLRequired_Yes" value="1" disabled /> Yes
+                        <input type="radio" name="OLRequired_display" id="OLRequired_No" value="0" disabled /> No
+                    </div>
+                </div>
+                <br />
+                <div class="form-group col-2">
+                    <label class="control-label">A/L Required</label>
+                    <div>
+                        <input type="radio" name="ALRequired_display" id="ALRequired_Yes" value="1" disabled /> Yes
+                        <input type="radio" name="ALRequired_display" id="ALRequired_No" value="0" disabled /> No
+                    </div>
+                </div>
+                <br />
+                <div class="form-group col-3">
+                    <label class="control-label">Higher Education Required</label>
+                    <div>
+                        <input type="radio" name="HERequired_display" id="HERequired_Yes" value="1" disabled /> Yes
+                        <input type="radio" name="HERequired_display" id="HERequired_No" value="0" disabled /> No
+                    </div>
+                </div>
+                <br />
+            </div>
+            <br/>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        // Template-to-required-fields mapping
+        // Based on TemplateInfo: ★ = mandatory (1), ✓ = optional, ✗ = not shown (0)
+        var templateMapping = {
+            'Application_L1': { OL: 1, AL: 1, HE: 1 },  // TTO, MO, SD, ITNWO, Talent Pool
+            'Application_L2': { OL: 0, AL: 0, HE: 1 },  // Engineer, Accountant
+            'Application_L3': { OL: 1, AL: 0, HE: 0 },  // Technician
+            'Application_L4': { OL: 1, AL: 1, HE: 0 }   // Interns
+        };
+
+        function updateRequiredFields() {
+            var template = $('#JobTemplate').val();
+            var mapping = templateMapping[template];
+
+            if (mapping) {
+                // Set hidden input values (these get posted)
+                $('#OLRequiredHidden').val(mapping.OL);
+                $('#ALRequiredHidden').val(mapping.AL);
+                $('#HERequiredHidden').val(mapping.HE);
+
+                // Update display radios
+                $('#OLRequired_Yes').prop('checked', mapping.OL === 1);
+                $('#OLRequired_No').prop('checked', mapping.OL === 0);
+                $('#ALRequired_Yes').prop('checked', mapping.AL === 1);
+                $('#ALRequired_No').prop('checked', mapping.AL === 0);
+                $('#HERequired_Yes').prop('checked', mapping.HE === 1);
+                $('#HERequired_No').prop('checked', mapping.HE === 0);
+            }
+        }
+
+        $(document).ready(function () {
+            var val = '@ViewBag.Message';
+            if (val != "")
+                $('.alert').show();
+            else
+                $('.alert').hide();
+
+            // Set flags on page load based on default template selection
+            updateRequiredFields();
+
+            // Update flags whenever template changes
+            $('#JobTemplate').on('change', function () {
+                updateRequiredFields();
+            });
+        });
+    </script>
+}

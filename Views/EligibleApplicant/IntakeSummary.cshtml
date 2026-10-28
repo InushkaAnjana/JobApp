@@ -1,0 +1,86 @@
+﻿@model IEnumerable<JobAppHR.Models.IntakeViewModel>
+
+@{
+    ViewData["Title"] = "Confirmed Final Intakes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    table.dataTable thead tr {
+        background-color: lightgrey;
+    }
+</style>
+
+<h5>@ViewData["Title"]</h5>
+
+<table class="table table-striped table-bordered dt-responsive compact nowrap" id="datagrid">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IntakeCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobPositionName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FinalConfirmed)
+            </th>
+            <th style="text-align: center">
+                Non-Eligible
+            </th>
+            <th style="text-align: center">
+                Eligible
+            </th>
+            <th style="text-align: center">
+                Short Listed
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IntakeCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.JobPositionName)
+                </td>
+                <td>
+                    @(item.FinalConfirmed == 1 ? "YES" : "NO")
+                </td>
+                <td style="text-align: center">
+                    @Html.ActionLink(" ", "ShowFail", new { intakeCode=item.IntakeCode }, new { @class="fa fa-user-times", @style="text-decoration:none;color:red;", title = "Non-Eligible List", target = "_blank" })
+                </td>
+                <td style="text-align: center">
+                    @Html.ActionLink(" ", "ShowFinal", new { intakeCode = item.IntakeCode }, new { @class = "fa fa-users", @style = "text-decoration:none;color:green;", title = "Eligible List", target = "_blank" })
+                </td>
+                <td style="text-align: center">
+                    @Html.ActionLink(" ", "ShortListed", new { intakeCode = item.IntakeCode }, new { @class = "fa-solid fa-flag", @style = "text-decoration:none;color:blue;", title = "Short Listed", target = "_blank" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts
+    {
+        <script>
+            $(document).ready(function () {
+                $('#datagrid').DataTable({
+                    "pageLength": 50,
+                    columnDefs: [
+                        { targets: [$('thead tr th').length - 1], "orderable": false, },
+                        { targets: [$('thead tr th').length - 2], "orderable": false, }
+                    ],
+                });
+
+                var val = '@ViewBag.Message';
+                if (val != "")
+                    $('.alert').show();
+                else
+                    $('.alert').hide();
+            });
+
+        </script>
+}

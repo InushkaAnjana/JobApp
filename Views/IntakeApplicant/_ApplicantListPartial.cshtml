@@ -1,0 +1,83 @@
+﻿@model IEnumerable<JobAppHR.Models.ApplicantViewModel>
+
+<div class="float-end">
+    @Html.ActionLink("Export to Excel", "ExportToExcel", "IntakeApplicant", new { intakeCode = @ViewBag.IntakeCode, currentStage = "", showAll = ViewBag.ShowAll ?? false }, new { @class="btn btn-outline-primary btn-sm" })
+</div>
+<br />
+
+<table class="table table-striped table-bordered dt-responsive compact nowrap" id="datagrid" style="width:100%">
+    <thead>
+        <tr>
+            @*<th>
+                @Html.DisplayNameFor(model => model.IntakeCode)
+            </th>*@
+            <th>
+                @Html.DisplayNameFor(model => model.ApplicationCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NameWithInitials)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NIC)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Age)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Overage)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) 
+    {
+        <tr>
+            @*<td>
+                @Html.DisplayFor(modelItem => item.IntakeCode)
+            </td>*@
+            <td>
+                @Html.ActionLink(item.ApplicationCode,"ViewApplicantData","IntakeApplicant",new {applicationCode = item.ApplicationCode}, new { target = "_blank" })
+                @*@Html.DisplayFor(modelItem => item.ApplicationCode)*@
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NameWithInitials)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NIC)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Age)
+            </td>
+@*             <td>
+                @{
+                    if (item.IntakeCode.EndsWith("/TP"))
+                    {
+                        <text>N/A</text>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.Age)
+                    }
+                }    
+            </td> *@
+            <td>
+                @Html.DisplayFor(modelItem => item.Overage)
+            </td>
+            <td>
+                @Html.ActionLink("Details", "ViewApplicantData", "IntakeApplicant", new { applicationCode=item.ApplicationCode }, new { target = "_blank" })
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<script>
+    $('#datagrid').DataTable({
+        "pageLength": 50,
+        columnDefs: [
+            { targets: [$('thead tr th').length - 1], "orderable": false, },
+            { targets: [1], width: "40%" },
+        ],
+    });
+</script>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - JobApp-HR</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/JobAppHR.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+    <link href="~/lib/datatable/css/datatables.css" rel="stylesheet" />
+    <link href="~/lib/datatables.net/css/datatables.css" rel="stylesheet" />
+
+</head>
+<body class="admin-body">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark admin-navbar">
+            <div class="container-fluid px-4">
+                @{ 
+                    var headerUserName = Context.User.FindFirst("UserName")?.Value ?? Context.Session.GetString("UserName") ?? "SLTMobitel User";
+                    var headerUserRole = Context.User.FindFirst("UserRole")?.Value ?? "Authenticated";
+                }
+                <a class="navbar-brand app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img class="brand-logo-mark" src="~/images/logo.png" alt="SLTMobitel logo" />
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar" aria-controls="adminNavbar"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between" id="adminNavbar">
+                    <ul class="navbar-nav flex-grow-1 align-items-lg-center gap-lg-1">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="masterDataMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Master Data
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="masterDataMenu">
+                                <li><a class="dropdown-item small" asp-controller="JobPosition" asp-action="Index">Job Positions</a></li>
+                                <li><a class="dropdown-item small" asp-controller="Subject" asp-action="Index">Subjects</a></li>
+                                <li><a class="dropdown-item small" asp-controller="HEInstitute" asp-action="Index">Higher Education Institutes</a></li>
+                                <li><a class="dropdown-item small" asp-controller="PQInstitute" asp-action="Index">Professional Qualification Institutes</a></li>
+                                <li><a class="dropdown-item small" asp-controller="QualType" asp-action="Index">Qualification Types</a></li>
+                                <li><a class="dropdown-item small" asp-controller="QualName" asp-action="Index">Qualification Names</a></li>
+                                <li><a class="dropdown-item small" asp-controller="MembershipType" asp-action="Index">Membership Types</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item small" asp-controller="Intake" asp-action="Index">Intake</a></li>
+                                <li><a class="dropdown-item small" asp-controller="TPIntake" asp-action="Index">Talent Pool Intake</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item small" asp-controller="UserManagement" asp-action="Index">System Users</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="IntakeApplicant" asp-action="Index">Applicant Details</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="screeningMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Application Screening
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="screeningMenu">
+                                <li><a class="dropdown-item small" asp-controller="FilterProcess" asp-action="Index">Auto Filtering</a></li>
+                                <li><a class="dropdown-item small" asp-controller="ManualProcess" asp-action="Index">Manual Filtering</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item small" asp-controller="EligibleApplicant" asp-action="IntakeSummary">Final List - Normal Intakes</a></li>
+                                <li><a class="dropdown-item small" asp-controller="EligibleApplicant" asp-action="TalentPoolIntakes">Final List - TP Intakes</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link" asp-controller="Home" asp-action="Settings">
+                                <i class="fa-solid fa-gear me-2"></i>Settings
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
+                        <a class="admin-settings-link me-2" asp-controller="Home" asp-action="Settings" title="Appearance settings" aria-label="Open appearance settings">
+                            <span class="admin-settings-link-icon"><i class="fa-solid fa-gear"></i></span>
+                            <span class="admin-settings-link-text">Settings</span>
+                        </a>
+                        <div class="dropdown">
+                            <span class="user-chip dropdown-toggle" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                                <i class="fa-solid fa-user-large" aria-hidden="true"></i>
+                                <span class="user-chip-copy">
+                                    <span>@headerUserName</span>
+                                    <small>@headerUserRole</small>
+                                </span>
+                            </span>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenuButton">
+                                <li>
+                                    <a class="dropdown-item text-danger" asp-controller="Home" asp-action="Logout">
+                                        <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main role="main" class="admin-main">
+        <div class="container-fluid px-4">
+            <section class="page-surface animate-fade-in">
+                @RenderBody()
+            </section>
+        </div>
+    </main>
+
+@*    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - JOBAPP
+        </div>
+    </footer>*@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @*<script src="~/lib/datatable/js/datatables.js"></script>*@
+    <script src="~/lib/datatables.net/js/datatables.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

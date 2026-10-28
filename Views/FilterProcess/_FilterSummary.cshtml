@@ -1,0 +1,96 @@
+﻿@model IEnumerable<JobAppHR.Models.FilterSummary>
+
+@if (!string.IsNullOrEmpty(ViewBag.IntakeName))
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">@ViewBag.IntakeName</h4>
+        <div class="dataTables_filter"></div>
+    </div>
+}
+
+<table class="table table-striped table-bordered dt-responsive compact nowrap" id="datagrid" style="width:100%">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IntakeCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrentStage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StageName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StageCount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastProcessedDate)
+            </th>
+            <th>
+                
+            </th>
+            <th>
+                
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IntakeCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CurrentStage)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StageName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StageCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastProcessedDate)
+                </td>
+                <td>
+                @{
+                    if (item.CurrentStage == "4")
+                    {
+                        @Html.ActionLink("To-Check", "FilterByStage", new { intakeCode = item.IntakeCode, currentStage = item.CurrentStage, currentStatus = "TO-CHECK" }, new { @class = "btn btn-primary btn-sm" })
+                    }
+                }
+                </td>
+                <td>
+                    @Html.ActionLink("Proceed", "FilterByStage", new { intakeCode=item.IntakeCode, currentStage=item.CurrentStage, currentStatus="PASS" }, new { @class = "btn btn-dark btn-sm" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $('#datagrid').DataTable({
+        "paging": false,
+        "dom": 'rt',
+        columnDefs: [
+            {
+                targets: [$('thead tr th').length - 1],
+                width: "5px",
+                "orderable": false,
+            },
+        ],
+        "drawCallback": function() {
+            $('.dataTables_filter').appendTo('.dataTables_filter');
+        }
+    });
+    
+    // Move search to custom location
+    setTimeout(function() {
+        var searchHtml = '<label>Search: <input type="search" class="form-control form-control-sm" placeholder="" aria-controls="datagrid"></label>';
+        $('.dataTables_filter').html(searchHtml);
+        $('.dataTables_filter input').on('keyup', function() {
+            $('#datagrid').DataTable().search(this.value).draw();
+        });
+    }, 100);
+</script>

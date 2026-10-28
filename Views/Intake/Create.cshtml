@@ -1,0 +1,144 @@
+﻿@model JobAppHR.Models.Intake
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/lib/datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+
+<h3>Create - Intake</h3>
+<div class="alert alert-info">
+    <h5 style="text-align: center">@ViewBag.Message</h5>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IntakeID" class="form-control" />
+            <div class="row">
+                <div class="col-5 form-group">
+                    <label asp-for="JobPositionID" class="control-label"></label>
+                    <select asp-for="JobPositionID" asp-items="@ViewBag.JobPosition" class="form-select form-select-sm">
+                    </select>
+                    <span asp-validation-for="JobPositionID" class="text-danger"></span>
+                </div>
+                <div class="col-2 form-group">
+                    <label asp-for="StartDate" class="control-label"></label>
+                    <input asp-for="StartDate" class="form-control form-control-sm" asp-format="{0:yyyy-MM-dd}" type="text" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="col-2 form-group">
+                    <label asp-for="ClosingDate" class="control-label"></label>
+                    <input asp-for="ClosingDate" class="form-control form-control-sm" asp-format="{0:yyyy-MM-dd}" type="text" />
+                    <span asp-validation-for="ClosingDate" class="text-danger"></span>
+                </div>
+                <div class="col-2 form-group">
+                    <label asp-for="AgeLimit" class="control-label"></label>
+                    <input asp-for="AgeLimit" class="form-control form-control-sm" />
+                    <span asp-validation-for="AgeLimit" class="text-danger"></span>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-3 form-group">
+                    <label asp-for="IntakeYearMonth" class="control-label"></label>
+                    <input asp-for="IntakeYearMonth" class="form-control form-control-sm" />
+                    <span asp-validation-for="IntakeYearMonth" class="text-danger"></span>
+                </div>
+                <div class="col-3 form-group">
+                    <label asp-for="IntakeCode" class="control-label"></label>
+                    <input asp-for="IntakeCode" class="form-control form-control-sm" readonly />
+                    <span asp-validation-for="IntakeCode" class="text-danger"></span>
+                </div>
+                <div class="col-3 form-group">
+                    <label asp-for="FilterMode" class="control-label"></label>
+                    <select asp-for="FilterMode" class="form-select form-select-sm">
+                        <option selected>AUTO</option>
+                        <option>MANUAL</option>
+                    </select>
+                    <span asp-validation-for="FilterMode" class="text-danger"></span>
+                </div>
+
+
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    <script src="~/lib/datepicker/js/bootstrap-datepicker.min.js"></script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+        <script>
+            $(document).ready(function () {
+
+                $("input[id$='Date']").datepicker(
+                {
+                    format: 'yyyy-mm-dd',
+                    autoclose: true,
+                });
+
+                $("#IntakeYearMonth").datepicker(
+                {
+                    format: 'yyyy-mm',
+                    minViewMode: "months",
+                    startView: "months",
+                    autoclose: true,
+                });
+
+                $("#IntakeYearMonth").on('change', function (ev) {
+                    generateIntakeCode();
+                });
+
+                $("#JobPositionID").on('change', function (ev) {
+                    generateIntakeCode();
+                });
+
+                function generateIntakeCode()
+                {
+                    //debugger;
+                    var jobPositionID = $("#JobPositionID").val();
+                    var intakeYearMonth = $("#IntakeYearMonth").val();
+                    var intakeCodeField = document.querySelector('input[name="IntakeCode"]');
+
+                    if (jobPositionID && intakeYearMonth) {
+                        // Fetch JobPositionCode from the server
+                        fetch('../Intake/GetJobPositionCode?jobPositionID=' + jobPositionID)
+                            .then(response => response.json())
+                            .then(data => {
+                                var jobPositionCode = data.jobPositionCode;
+                                var [year, month] = intakeYearMonth.split("-");
+                                var formattedIntakeYearMonth = `${year}/${month}`;
+                                var intakeCode = `${jobPositionCode}/${formattedIntakeYearMonth}`;
+                                intakeCodeField.value = intakeCode;
+                            });
+                    }
+                }
+
+                //document.getElementById('createForm').addEventListener('submit', function (event) {
+                //    generateIntakeCode();
+                //});
+
+                var val = '@ViewBag.Message';
+                if (val != "")
+                    $('.alert').show();
+                else
+                    $('.alert').hide();
+            })
+        </script>
+
+}

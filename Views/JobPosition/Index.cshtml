@@ -1,0 +1,114 @@
+﻿@model IEnumerable<JobAppHR.Models.JobPosition>
+
+@{
+    ViewData["Title"] = "Job Positions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    table.dataTable thead tr {
+      background-color: lightgrey;
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+<p>
+    <a asp-action="Create" class="btn btn-outline-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Create New</a>
+</p>
+<div class="alert alert-info">
+    <h5 style="text-align: center">@ViewBag.Message</h5>
+</div>
+<table class="table table-striped table-bordered dt-responsive compact nowrap" id="datagrid">
+    <thead>
+        <tr>
+            @*<th>
+                @Html.DisplayNameFor(model => model.JobPositionID)
+            </th>*@
+            <th>
+                @Html.DisplayNameFor(model => model.JobPositionName)
+            </th>
+            <th>
+                Code
+            </th>
+            <th>
+                Template
+            </th>
+            <th>
+                Filtering By O/L
+            </th>
+            <th>
+                Filtering By A/L
+            </th>
+@*            <th>
+                Higher Edu.
+            </th>
+            <th>
+                Prof.Qual.
+            </th>
+            <th>
+                Work Exp.
+            </th>*@
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            @*<td>
+                @Html.DisplayFor(modelItem => item.JobPositionID)
+            </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.JobPositionName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobPositionCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobTemplate)
+                @Html.ActionLink(" ", "TemplateInfo", new{id=0} ,new { @class="fa fa-info-circle", @style="text-decoration:none;", title = "Details", target = "_blank" })
+            </td>
+            <td>
+                @(item.OLRequired == 1 ? "Yes" : "No")
+            </td>
+            <td>
+                @(item.ALRequired == 1 ? "Yes" : "No")
+            </td>
+@*            <td>
+                @(item.HERequired == 1 ? "Yes" : "No")
+            </td>
+            <td>
+                @(item.PQRequired == 1 ? "Yes" : "No")
+            </td>
+            <td>
+                @(item.WERequired == 1 ? "Yes" : "No")
+            </td>*@
+            <td>
+                @Html.ActionLink(" ", "Edit", new { id=item.JobPositionID }, new { @class="fa fa-pencil", @style="text-decoration:none;", title = "Edit" })
+                @*@Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })*@
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $('#datagrid').DataTable({
+                "pageLength": 50,
+                columnDefs: [
+                    { targets: [$('thead tr th').length - 1],"orderable": false,}
+                ],
+            });
+
+            var val = '@ViewBag.message';
+            if (val != "")
+                $('.alert').show();
+            else
+                $('.alert').hide();
+        });
+
+    </script>
+}

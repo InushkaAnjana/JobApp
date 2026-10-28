@@ -1,0 +1,74 @@
+﻿@model IEnumerable<JobAppHR.Models.FinalFilter>
+
+@{
+    ViewData["Title"] = "Final Eligible Applicants";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@ViewData["Title"]</h4>
+
+@Html.Label("Intake Code")
+
+<input type="text" value="@ViewBag.IntakeCode" id="intakeCode" name="intakeCode" style="border:none; font-weight: bold" readonly />
+
+<div class="float-end">
+    @Html.ActionLink("Export to Excel", "ExportToExcel", "IntakeApplicant", new { intakeCode = @ViewBag.IntakeCode, currentStage = "FINAL", freezeNo = @ViewBag.FreezeNo }, new { @class = "btn btn-outline-primary btn-sm" })
+</div>
+
+<table class="table table-striped table-bordered dt-responsive compact" id="datagrid" style="width:100%">
+        <thead>
+            <tr>           
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationCode)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NameWithInitials)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CurrentStatus)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Remarks)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) 
+            {
+                <tr>            
+                    <td>
+                        @Html.ActionLink(item.ApplicationCode,"ViewApplicantData","IntakeApplicant",new {applicationCode = item.ApplicationCode}, new { target = "_blank" })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NameWithInitials)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CurrentStatus)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Remarks)
+                    </td>
+                    <td>
+                        @Html.ActionLink(" ","ViewProgress","FilterProcess",new {applicationCode = item.ApplicationCode}, new { @class="fa fa-line-chart", @style="text-decoration:none;", title = "View Progress", target = "_blank"})
+                        @Html.ActionLink(" ","MakeNotEligible",new {applicationCode = item.ApplicationCode}, new { @class="fa fa-times-circle", @style="text-decoration:none; color:red; margin-left:10px;", title = "Make Not Eligible"})
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () 
+        {
+            $('#datagrid').DataTable({
+                "pageLength": 50,
+                columnDefs: [
+                    { targets: [$('thead tr th').length - 1], "orderable": false, }
+                ],
+            });
+        });
+    </script>
+}

@@ -1,0 +1,54 @@
+﻿@model JobAppHR.Models.QualNames
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Edit - Qualification Name</h3>
+<div class="alert alert-info">
+    <h5 style="text-align: center">@ViewBag.Message</h5>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="QNameID" class="form-control" />
+            <div class="row">
+                <div class="col-4 form-group">
+                    <label asp-for="QualName" class="control-label"></label>
+                    <input asp-for="QualName" class="form-control form-control-sm" maxlength="50" />
+                    <span asp-validation-for="QualName" class="text-danger"></span>
+                </div>
+                <div class="col-5 form-group">
+                    <label asp-for="QTypeID" class="control-label"></label>
+                    <select asp-for="QTypeID" asp-items="@ViewBag.QualType" class="form-select form-select-sm">
+                    </select>
+                    <span asp-validation-for="QTypeID" class="text-danger"></span>
+                </div>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+        <script>
+            var val = '@ViewBag.Message';
+            if (val != "")
+                $('.alert').show();
+            else
+                $('.alert').hide();
+        </script>
+}

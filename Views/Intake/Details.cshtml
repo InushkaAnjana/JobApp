@@ -1,0 +1,136 @@
+﻿@model JobAppHR.Models.IntakeViewModel
+
+@{
+    ViewData["Title"] = "View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h5>Details of Intake - @Model.IntakeCode</h5>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.IntakeCode)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.IntakeCode)
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.ClosingDate)
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.ClosingDate)
+        </dd>
+
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.JobPositionName)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.JobPositionName)
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.AgeLimit)
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.AgeLimit) Years
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.IntakeYearMonth)
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.IntakeYearMonth)
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.FilterMode)
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.FilterMode)
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.OLRequired)
+        </dt>
+        <dd class = "col-sm-8">
+            @(Model.OLRequired == 1 ? "YES" : "NO")
+        </dd>
+
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.ALRequired)
+        </dt>
+        <dd class="col-sm-8">
+            @(Model.ALRequired == 1 ? "YES" : "NO")
+        </dd>
+
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.HERequired)
+        </dt>
+        <dd class="col-sm-8">
+            @(Model.HERequired == 1 ? "YES" : "NO")
+        </dd>
+
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.InsertedBy)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.InsertedBy)
+        </dd>
+
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.InsertedOn)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.InsertedOn)
+        </dd>
+
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.UpdatedBy)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.UpdatedBy)
+        </dd>
+
+        <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.UpdatedOn)
+        </dt>
+        <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.UpdatedOn)
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.FinalConfirmed)
+        </dt>
+        <dd class = "col-sm-8">
+            @(Model.FinalConfirmed == 1 ? "YES" : "NO")
+            @*@Html.DisplayFor(model => model.FinalConfirmed)*@
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.FinalConfirmedBy)
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.FinalConfirmedBy)
+        </dd>
+
+        <dt class = "col-sm-4">
+            @Html.DisplayNameFor(model => model.FinalConfirmedOn)
+        </dt>
+        <dd class = "col-sm-8">
+            @Html.DisplayFor(model => model.FinalConfirmedOn)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

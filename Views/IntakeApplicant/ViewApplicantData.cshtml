@@ -1,0 +1,512 @@
+﻿@model JobAppHR.Models.ApplicationData
+
+@{
+    ViewData["Title"] = "ViewApplicantData";
+}
+
+<style>
+    .highlight {
+        color: red;
+    }
+</style>
+
+<h3>Applicant Details of <small class="text-muted">@Model.PersonalData.FullName</small></h3>
+
+<input type="hidden" asp-for="PersonalData.ApplicationCode"/>
+
+<br />
+
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation"><a class="nav-link active" id="tab1" data-bs-toggle="tab" href="#personalData" role="tab">Personal Data</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="tab2" data-bs-toggle="tab" href="#OLResults" role="tab">O/L Results</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="tab3" data-bs-toggle="tab" href="#ALResults" role="tab">A/L Results</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="tab4" data-bs-toggle="tab" href="#HEQual" role="tab">Higher Education</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="tab5" data-bs-toggle="tab" href="#profQual" role="tab">Prof. Qualification</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="tab6" data-bs-toggle="tab" href="#workExp" role="tab">Work Exp.</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="tab7" data-bs-toggle="tab" href="#otherDoc" role="tab">Other Docs</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="tab8" data-bs-toggle="tab" href="#filterProgress" role="tab">Screening Results</a></li>
+</ul>
+
+<div class="tab-content" id="applicantData">
+    <div class="tab-pane fade show active" id="personalData" role="tabpanel">
+        <br />
+        <div class="row row-cols-2">
+            <div class="col-6"><strong>Application Reference Code - @Model.PersonalData.ApplicationCode</strong></div>
+            <div class="col-6"><strong>Applied On - @Html.DisplayFor(modelitem => @Model.PersonalData.AppliedDate)</strong></div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Contact Information</strong>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            @Model.PersonalData.Salutation.&nbsp;@Model.PersonalData.Initials&nbsp;@Model.PersonalData.Surname
+                            <br />
+                            @Model.PersonalData.FullName
+                            <br />
+                            <span><i class="fa fa-home" aria-hidden="true"></i></span>
+                            <br />
+                            @Model.PersonalData.HouseNo<br />
+                            @Model.PersonalData.AddressLine1<br />
+
+                            @{
+                                if (!string.IsNullOrWhiteSpace(@Model.PersonalData.AddressLine2))
+                                {
+                                    <text>@Model.PersonalData.AddressLine2</text><br />
+                                }
+                                if (!string.IsNullOrWhiteSpace(@Model.PersonalData.AddressLine3))
+                                {
+                                    <text>@Model.PersonalData.AddressLine3</text><br />
+                                }
+                                if (!string.IsNullOrWhiteSpace(@Model.PersonalData.AddressLine4))
+                                {
+                                    <text>@Model.PersonalData.AddressLine4</text><br />
+                                }
+
+                            }
+                    
+                            <br />
+                            <span><i class="fa fa-phone" aria-hidden="true"></i></span>
+                            @Model.PersonalData.ContactNo1,@Model.PersonalData.ContactNo2
+
+                            <br />
+                            <span><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                            @Model.PersonalData.Email
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="card">
+                <div class="card-header">
+                    <strong>Bio Information</strong>
+                </div>
+                <div class="card-body">
+                <p class="card-text">
+                    <span><i class="fa fa-id-card" aria-hidden="true"></i></span>
+                    @Model.PersonalData.NIC
+                    <br />
+                    <span><i class="fa fa-birthday-cake" aria-hidden="true"></i></span>
+                    @Html.DisplayFor(Model => Model.PersonalData.DOB)
+                    <br />
+                    Age: <strong>@Model.PersonalData.Overage</strong>
+                    <br />
+                    @{
+                        if (Model.PersonalData.AgeYears == 0 && Model.PersonalData.AgeMonths == 0 && Model.PersonalData.AgeDays == 0)
+                        {
+                            <text>Age is not calculated for Talent Pool applicants</text>
+                        }
+                        else
+                        {
+                            <text>
+                                @Model.PersonalData.AgeYears - Years
+                                @Model.PersonalData.AgeMonths - Months
+                                @Model.PersonalData.AgeDays - Days
+                            </text>
+                        }
+                    }
+                </p>
+            </div>
+        </div>               
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-pane fade" id="OLResults" role="tabpanel">
+        <br />
+        <div class="row">
+            @{
+                if (Model.OLResults1 != null)
+                {                
+                    <div class="col-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>O/L 1st Attempt</strong>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title display-label">Year: @Model.OLExam1.ExamYear &nbsp; Index No: @Model.OLExam1.IndexNumber</h6>
+                                <p class="card-text">
+                                    @{
+                                        foreach (var item in @Model.OLResults1)
+                                        {
+                                            <div class="row row-cols-2">
+                                                <div class="col @(item.SubjectName.EndsWith("*") ? "highlight" : "")">@item.SubjectName</div>
+                                                <div class="col @(item.SubjectName.EndsWith("*") ? "highlight" : "")">@item.Grade</div>
+                                            </div>
+                                        }
+                                    }
+                                </p>
+                                <button type="button" class="btn btn-dark" value="@Model.DocumentNames.OLExam_Attempt1">View Certificate</button>
+                            </div>
+                        </div>
+                    </div>                            
+                }
+            }
+        </div>
+
+        <div class="row">
+            @{
+                if (Model.OLResults2 != null)
+                {
+                    <div class="col-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>O/L 2nd Attempt</strong>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title display-label">Year: @Model.OLExam2.ExamYear &nbsp; Index No: @Model.OLExam2.IndexNumber</h6>
+                                <p class="card-text">
+                                    @{
+                                        foreach (var item in @Model.OLResults2)
+                                        {
+                                            <div class="row row-cols-2">
+                                                <div class="col">@item.SubjectName</div>
+                                                <div class="col">@item.Grade</div>
+                                            </div>
+                                        }
+                                    }
+                                </p>
+                                <button type="button" class="btn btn-dark" value="@Model.DocumentNames.OLExam_Attempt2">View Certificate</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="row">
+            @{
+                if (Model.OLResults3 != null)
+                {               
+                    <div class="col-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>O/L 3rd Attempt</strong>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title display-label">Year: @Model.OLExam3.ExamYear &nbsp; Index No: @Model.OLExam3.IndexNumber</h6>
+                                <p class="card-text">
+                                    @{
+                                        foreach (var item in @Model.OLResults3)
+                                        {
+                                            <div class="row row-cols-2">
+                                                <div class="col">@item.SubjectName</div>
+                                                <div class="col">@item.Grade</div>
+                                            </div>
+                                        }
+                                    }
+                                </p>
+                                <button type="button" class="btn btn-dark" value="@Model.DocumentNames.OLExam_Attempt3">View Certificate</button>
+                            </div>
+                        </div>
+                    </div>                
+                }
+            }
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="ALResults" role="tabpanel">
+        <br />
+        <div class="row">
+            @{
+                if (Model.ALResults != null)
+                {                
+                    <div class="col-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>A/L Results</strong>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title display-label">Year: @Model.ALExam.ExamYear &nbsp; Index No: @Model.ALExam.IndexNumber</h6>
+                                <p class="card-text">
+                                    @{
+                                        foreach (var item in @Model.ALResults)
+                                        {
+                                            <div class="row row-cols-2">
+                                                <div class="col">@item.SubjectName</div>
+                                                <div class="col">@item.Grade</div>
+                                            </div>
+                                        }
+                                    }
+                                </p>
+                                <button type="button" class="btn btn-dark" value="@Model.DocumentNames.ALExam_Attempt1">View Certificate</button>
+                            </div>
+                        </div>
+                    </div>               
+                }
+            }
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="HEQual" role="tabpanel">
+        <br />
+        <div class="col-12">
+            <div class="row">
+                @{
+                    int i = 0;
+                    foreach (var item in @Model.HEQualifications ?? Enumerable.Empty<HEQualification>())
+                    {
+                        <div class="col-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <strong>@item.QualName</strong>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <div class="row row-cols-2">
+                                            <div class="col"><label asp-for="@item.HEInstituteName" class="display-label"></label></div>
+                                            <div class="col">@item.HEInstituteName</div>
+                                        </div>
+
+                                        <div class="row row-cols-2">
+                                            <div class="col"><label asp-for="@item.NVQLevel" class="display-label"></label></div>
+                                            <div class="col">@item.NVQLevel</div>
+                                        </div>
+
+                                        <div class="row row-cols-2">
+                                            <div class="col"><label asp-for="@item.SpecializedArea" class="display-label"></label></div>
+                                            <div class="col">@item.SpecializedArea</div>
+                                        </div>
+
+                                        <div class="row row-cols-2">
+                                            <div class="col"><label asp-for="@item.QualStatus" class="display-label"></label></div>
+                                            <div class="col">@item.QualStatus</div>
+                                        </div>
+
+                                        <div class="row row-cols-2">
+                                            <div class="col"><label asp-for="@item.AwardedYearMonth" class="display-label"></label></div>
+                                            <div class="col">@item.AwardedYearMonth</div>
+                                        </div>
+                                    </p>
+                                    @{
+                                        if (!string.IsNullOrEmpty(Model.DocumentNames.HEQualification[i]) && item.QualStatus.ToLower() == "completed")
+                                        {
+                                            <button type="button" class="btn btn-dark" value="@Model.DocumentNames.HEQualification[i]">View Certificate</button>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        i++;
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="profQual" role="tabpanel">
+        <br />            
+        <div class="row">
+        @{
+            i = 0;
+            foreach (var item in @Model.ProfQualifications ?? Enumerable.Empty<ProfQualification>())
+            {               
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>@item.PQInsituteName</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                <div class="row row-cols-2">
+                                        <div class="col"><label asp-for="@item.MembershipType" class="display-label"></label></div>
+                                    <div class="col">@item.MembershipType</div>
+                                </div>
+
+                                <div class="row row-cols-2">
+                                        <div class="col"><label asp-for="@item.MembershipNo" class="display-label"></label></div>
+                                    <div class="col">@item.MembershipNo</div>
+                                </div>
+                            </p>
+                            <button type="button" class="btn btn-dark" value="@Model.DocumentNames.ProfQualification[i]">View Certificate</button>
+                        </div>
+                    </div>
+                </div>
+                i++;
+            }
+        }
+        </div>            
+    </div>
+
+    <div class="tab-pane fade" id="workExp" role="tabpanel">
+        <br />
+        <div class="row">
+            @{
+                i = 0;
+                foreach (var item in @Model.WorkExperiences ?? Enumerable.Empty<WorkExperience>())
+                {
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                    <strong>@item.PositionHeld</strong>
+                                </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <div class="row row-cols-2">
+                                        <div class="col"><label asp-for="@item.CompanyName" class="display-label"></label></div>
+                                        <div class="col">@item.CompanyName</div>
+                                    </div>
+
+                                    <div class="row row-cols-2">
+                                        <div class="col"><label asp-for="@item.EmploymentNature" class="display-label"></label></div>
+                                        <div class="col">@item.EmploymentNature</div>
+                                    </div>
+
+                                    <div class="row row-cols-2">
+                                        <div class="col"><label asp-for="@item.JobStatus" class="display-label"></label></div>
+                                        <div class="col">@item.JobStatus</div>
+                                    </div>
+
+                                    <div class="row row-cols-4">
+                                        <div class="col"><label asp-for="@item.StartYearMonth" class="display-label"></label></div>
+                                        <div class="col">@item.StartYearMonth</div>
+                                        <div class="col"><label asp-for="@item.EndYearMonth" class="display-label"></label></div>
+                                        <div class="col">@item.EndYearMonth</div>
+                                    </div>
+                                </p>
+                                @{
+                                    if (! string.IsNullOrEmpty(Model.DocumentNames.ServiceLetter[i]))
+                                    {
+                                        <button type="button" class="btn btn-dark" value="@Model.DocumentNames.ServiceLetter[i]">View Service Letter</button>
+                                    }
+                                    else
+                                    {
+                                        <p class="btn btn-dark disabled">No Service Letter</p>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                i++;
+            }
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="otherDoc" role="tabpanel">
+        <br />
+        <div class="row">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Other Attachements</strong>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <div class="row row-cols-2">
+                                <div class="col"><label asp-for="@Model.DocumentNames.CVName" class="display-label"></label></div>
+                                <div class="col"><button type="button" class="btn btn-dark" value="@Model.DocumentNames.CVName">View</button></div>
+                            </div>
+                            <br />
+                            <div class="row row-cols-2">
+                                <div class="col"><label asp-for="@Model.DocumentNames.NICName" class="display-label"></label></div>
+                                <div class="col"><button type="button" class="btn btn-dark" value="@Model.DocumentNames.NICName">View</button></div>
+                            </div>
+                            <br />
+                            <div class="row row-cols-2">
+                                <div class="col"><label asp-for="@Model.DocumentNames.BCName" class="display-label"></label></div>
+                                <div class="col"><button type="button" class="btn btn-dark" value="@Model.DocumentNames.BCName">View</button></div>
+                            </div>
+                            <br />
+                            @{
+                                if (!string.IsNullOrEmpty(Model.DocumentNames.DLName))
+                                {
+                                    <div class="row row-cols-2">
+                                        <div class="col"><label asp-for="@Model.DocumentNames.DLName" class="display-label"></label></div>
+                                        <div class="col"><button type="button" class="btn btn-dark" value="@Model.DocumentNames.DLName">View</button></div>
+                                    </div>
+                                }
+                            }
+                            <br />
+                            <div class="row row-cols-2">
+                                <div class="col"><label asp-for="@Model.DocumentNames.Remarks" class="display-label"></label></div>
+                                <div class="col">@Model.DocumentNames.Remarks</div>
+                            </div>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="filterProgress" role="tabpanel">
+        <table class="table table-striped table-bordered dt-responsive compact nowrap">
+            <thead>
+                <tr>
+                    <th>
+                        Stage
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+                        Remarks
+                    </th>
+                    <th>
+                        Updated By
+                    </th>
+                    <th>
+                        Updated On
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.FilterProgress)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Stage)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Remarks)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UpdatedBy)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UpdatedOn)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    
+
+<br />
+@*<div>
+    <a href="javascript:history.back()">Go Back</a>
+    <a asp-action="ViewApplicantList" asp-route-id=@Model.PersonalData.IntakeCode>Back to Applicant List</a>
+</div>*@
+
+@section Scripts {
+    <script>
+        $(".btn-dark").click(function () {
+            //alert($(this).val());
+            viewDocument($(this).val());
+        });
+
+        function viewDocument(documentName) {
+            //var documentName = $(this).val();
+            var applicationCode = $("#PersonalData_ApplicationCode").val();
+            if (documentName != "") {
+                var url = '@Url.Action("ViewDocument", "IntakeApplicant")?documentName=' + encodeURIComponent(documentName) + '&applicationCode=' + encodeURIComponent(applicationCode);
+                window.open(url, '_blank');
+            }
+            else {
+                alert("Document not available.");
+            }
+        }
+    </script>
+}

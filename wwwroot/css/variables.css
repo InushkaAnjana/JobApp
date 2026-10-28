@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+:root {
+    --primary-blue: #0056B3;
+    --primary-blue-light: #2F7BDB;
+    --primary-blue-dark: #003C7C;
+
+    --secondary-blue: #0088CC;
+    --secondary-blue-light: #33A0D6;
+    --secondary-blue-dark: #006B9E;
+
+    --accent-green: #40A83A;
+    --accent-green-light: #5EBC58;
+    --accent-green-dark: #2F832A;
+
+    --text-primary: #1E293B;
+    --text-secondary: #475569;
+    --text-light: #64748B;
+    --text-white: #FFFFFF;
+
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F6F8FC;
+    --bg-tertiary: #EAF0F8;
+    --bg-dark: #0F172A;
+
+    --surface: rgba(255, 255, 255, 0.88);
+    --surface-strong: rgba(255, 255, 255, 0.98);
+    --surface-border: rgba(148, 163, 184, 0.18);
+
+    --success: #10B981;
+    --warning: #F59E0B;
+    --error: #EF4444;
+    --info: #3B82F6;
+
+    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 10px 25px -12px rgba(15, 23, 42, 0.18);
+    --shadow-lg: 0 18px 42px -20px rgba(15, 23, 42, 0.28);
+    --shadow-xl: 0 28px 60px -28px rgba(15, 23, 42, 0.38);
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 360ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-secondary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --bg-overlay-opacity: 0.08;
+    --bg-pattern-opacity: 1;
+    --surface-opacity: 0.98;
+    --hero-overlay-opacity: 0.96;
+    --ui-scale: 1;
+    --radius-xl: 20px;
+    --bg-image-layer: radial-gradient(circle at top left, rgba(0, 86, 179, 0.08), transparent 28%), radial-gradient(circle at bottom right, rgba(64, 168, 58, 0.08), transparent 24%);
+
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal: 1040;
+    --z-popover: 1050;
+    --z-tooltip: 1060;
+
+    --app-font-family: var(--font-primary);
+}

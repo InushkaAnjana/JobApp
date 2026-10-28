@@ -1,0 +1,31 @@
+﻿@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="login-shell animate-fade-in-up">
+    <div class="login-card">
+        <div class="login-brand">
+            <span class="login-badge">HR</span>
+            <div>
+                <h1>JOBAPP HR Administration</h1>
+                <p>Administration module of the SLT External Job Recruitment Portal</p>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(ViewBag.Message as string))
+        {
+            <div class="login-note">@ViewBag.Message</div>
+        }
+
+        <div class="login-actions">
+            <button class="btn btn-lg btn-primary" onclick="location.href='@Url.Action("AzureLogin", "Home")'">
+                <i class="fa-brands fa-microsoft"></i>
+                Login with Azure
+            </button>
+        </div>
+    </div>
+</div>
+
+
+

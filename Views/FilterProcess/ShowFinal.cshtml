@@ -1,0 +1,162 @@
+@model IEnumerable<JobAppHR.Models.FinalFilter>
+
+@{
+    ViewData["Title"] = "Final Eligible Applicants";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
+}
+
+<h4>@ViewData["Title"]</h4>
+
+<form id="form" asp-action="AdjustFinal" method="post">
+    @Html.Label("Intake Code")
+    <input type="text" value="@ViewBag.IntakeCode" id="intakeCode" name="intakeCode" style="border:none; font-weight: bold" readonly />
+
+    <div class="float-end">
+        @Html.ActionLink("Export to Excel", "ExportToExcel", "IntakeApplicant", new { intakeCode = @ViewBag.IntakeCode, currentStage = "FINAL", freezeNo = @ViewBag.FreezeNo }, new { @class = "btn btn-outline-primary btn-sm" })
+    </div>
+
+    <table class="table table-striped table-bordered dt-responsive compact" id="datagrid" style="width:100%">
+        <thead>
+            <tr>           
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationCode)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NameWithInitials)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CurrentStatus)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Remarks)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) 
+            {
+                <tr>            
+                    <td>
+                        @Html.ActionLink(item.ApplicationCode,"ViewApplicantData","IntakeApplicant",new {applicationCode = item.ApplicationCode}, new { target = "_blank" })
+                        <input type="hidden" asp-for="@item.ApplicationCode" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NameWithInitials)
+                    </td>
+                    <td>
+                        <input type="checkbox" name="CurrentStatus" id="status_@i" checked /> OK
+                        <input type="hidden" asp-for="@item.CurrentStatus" id="currentstatus_@i" />
+                    </td>
+                    <td>
+                        @*<input type="text" name="Remarks" value="@item.Remarks" />*@
+                        <input asp-for="@item.Remarks" id="remarks_@i" class="form-control form-control-sm" maxlength="150" />
+                    </td>
+                    <td>
+                        @Html.ActionLink(" ","ViewProgress",new {applicationCode = item.ApplicationCode}, new { @class="fa fa-line-chart", @style="text-decoration:none;", title = "View Progress", target = "_blank"})
+                    </td>
+                </tr>
+                i++;
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-light rounded border">
+        <h5 class="mb-0 text-muted" style="font-size: 1rem;">If you have made any changes, first click on Save before confirming the list</h5>
+        <div class="d-flex gap-2">
+            <button id="btnConfirm" type="button" class="btn btn-danger">Confirm & Freeze</button>
+            <button id="btnProceed" type="submit" class="btn btn-success">Save</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/lib/sweetalert/sweetalert.min.js"></script>
+    <script>
+        $(document).ready(function () 
+        {
+            $('#datagrid').DataTable({
+                "paging": false,
+                columnDefs: [
+                    { targets: [$('thead tr th').length - 1], "orderable": false, }
+                ],
+            });
+
+            $('input[type="checkbox"]').change(function (event) {
+                var ctrlId = $(this).attr('id');
+                var statusId = "#currentstatus_" + ctrlId.substring(7);
+                var remarksId = "#remarks_" + ctrlId.substring(7);
+
+                if (this.checked)
+                {
+                    $(statusId).val("PASS");
+                }
+                else 
+                {
+                    $(statusId).val("FAIL");
+                }
+            });
+
+            $('input[type="search"]').on('input', function () {
+
+                if ($(this).val() != "") {
+                    $("#btnProceed").prop("disabled", true);
+                    $("#btnConfirm").prop("disabled", true);
+                }
+                else {
+                    $("#btnProceed").prop("disabled", false);
+                    $("#btnConfirm").prop("disabled", false);
+                }
+            });
+
+            $('#btnConfirm').click(function () {
+                var intakeCode = $("#intakeCode").val();
+                swal({
+                    title: "Are you sure to confirm & freeze?",
+                    text: "Once freezed, you will not be able to revise the list!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                .then((willConfirm) => {
+                    if (willConfirm) {
+                        //swal("Poof! Your imaginary file has been deleted!", {
+                        //icon: "success",
+                        //Confirm();
+                        var url = '@Url.Action("ConfirmFinal", "FilterProcess", new { intakeCode = ViewBag.IntakeCode })';
+                        window.location.href = url;
+                            
+                    }
+                });
+            });
+                
+                
+
+            function Confirm()
+            {
+                //alert("pp");
+                var intakeCode = $("#intakeCode").val();
+                alert(intakeCode);
+
+                $.ajax({
+                    url: '@Url.Action("ConfirmFinal")', // to get the right path to controller from TableRoutes of Asp.Net MVC
+                    dataType: "json", //to work with json format
+                    type: "POST", //to do a post request 
+                    //contentType: 'application/json; charset=utf-8', //define a contentType of your request
+                    cache: false, //avoid caching results
+                    data: { intakeCode: intakeCode }, // here you can pass arguments to your request if you need
+                    success: function (data) {
+                         // data is your result from controller
+                        if (data.success) { 
+                            alert(data.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        alert('error');
+                    }
+                });
+            }
+        });
+    </script>
+}

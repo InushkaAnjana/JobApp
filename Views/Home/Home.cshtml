@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var userName = Context.User.FindFirst("UserName")?.Value ?? Context.Session.GetString("UserName") ?? "SLTMobitel User";
+    var userId = Context.User.FindFirst("UserId")?.Value ?? Context.Session.GetString("UserId") ?? "Not available";
+    var userEmail = Context.User.FindFirst("UserEmail")?.Value ?? "Not available";
+    var userRole = Context.User.FindFirst("UserRole")?.Value ?? "Not available";
+    var userGroup = Context.User.FindFirst("UserGroup")?.Value ?? "Not available";
+    var authScheme = Context.User.Identity?.AuthenticationType ?? "Cookie authentication";
+    var portalName = "SLTMobitel HR Recruitment Portal";
+}
+
+<div class="dashboard-hero animate-fade-in-up">
+    <div>
+        <img class="brand-logo-mark" src="~/images/logo.png" alt="SLTMobitel" />
+        <h1>Administration Dashboard</h1>
+        <p>Secure administration workspace for the SLTMobitel HR recruitment portal.</p>
+
+        <div class="hero-actions">
+            <a class="btn btn-success" asp-controller="FilterProcess" asp-action="Index">
+                <i class="fa-solid fa-sliders"></i>
+                Start Screening
+            </a>
+            <a class="btn btn-outline-dark" asp-controller="JobPosition" asp-action="Index">
+                <i class="fa-solid fa-briefcase"></i>
+                Manage Job Positions
+            </a>
+        </div>
+    </div>
+
+    <div class="hero-panel">
+        <div class="hero-stat">
+            <div>
+                <strong>@userName</strong>
+                <span>Authenticated operator</span>
+            </div>
+            <i class="fa-solid fa-user-check fa-lg"></i>
+        </div>
+        <div class="hero-stat">
+            <div>
+                <strong>@userEmail</strong>
+                <span>Corporate identity</span>
+            </div>
+            <i class="fa-solid fa-envelope-open-text fa-lg"></i>
+        </div>
+        <div class="hero-stat">
+            <div>
+                <strong>@(string.IsNullOrWhiteSpace(userRole) ? "Role pending" : userRole)</strong>
+                <span>Access level</span>
+            </div>
+            <i class="fa-solid fa-user-lock fa-lg"></i>
+        </div>
+        <div class="hero-stat">
+            <div>
+                <strong>@portalName</strong>
+                <span>@authScheme | User ID: @userId | Group: @userGroup</span>
+            </div>
+            <i class="fa-solid fa-shield-halved fa-lg"></i>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid mt-4">
+    <a class="dashboard-card hover-lift animate-fade-in" asp-controller="JobPosition" asp-action="Index">
+        <span class="dashboard-card-icon"><i class="fa-solid fa-briefcase"></i></span>
+        <h3>Master Data</h3>
+        <p>Maintain job positions, qualifications, institutes, and supporting reference data.</p>
+        <span class="dashboard-card-footer">Open modules <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
+
+    <a class="dashboard-card hover-lift animate-fade-in animate-delay-100" asp-controller="Intake" asp-action="Index">
+        <span class="dashboard-card-icon"><i class="fa-solid fa-layer-group"></i></span>
+        <h3>Intake Management</h3>
+        <p>Handle active intakes and the configuration that drives candidate processing.</p>
+        <span class="dashboard-card-footer">Review intakes <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
+
+    <a class="dashboard-card hover-lift animate-fade-in animate-delay-200" asp-controller="IntakeApplicant" asp-action="Index">
+        <span class="dashboard-card-icon"><i class="fa-solid fa-users"></i></span>
+        <h3>Applicant Records</h3>
+        <p>Search, inspect, and manage applicant information from the shared workspace.</p>
+        <span class="dashboard-card-footer">View applicants <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
+
+    <a class="dashboard-card hover-lift animate-fade-in animate-delay-300" asp-controller="UserManagement" asp-action="Index">
+        <span class="dashboard-card-icon"><i class="fa-solid fa-user-gear"></i></span>
+        <h3>System Users</h3>
+        <p>Keep admin accounts organized and ensure the right people can access the portal.</p>
+        <span class="dashboard-card-footer">Manage users <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
+</div>

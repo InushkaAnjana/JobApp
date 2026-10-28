@@ -1,0 +1,63 @@
+<form asp-action="ViewApplicantList">
+    <div><h6>Start filtering process for Intakes which are set to MANUAL filtering mode</h6></div>
+    <br />
+    <br />
+    <div class="form-group d-flex align-items-center">
+        <div class="me-4">
+            <label class="control-label">Select Intake Code</label>
+        </div>
+        <div class="me-4">
+            <select name="IntakeCode" id="IntakeCode" class="form-select form-select-sm" asp-items="@ViewBag.IntakeCode">
+            </select>
+        </div>
+        <div class="d-flex align-items-center">
+            <label id="JobPositionName" class="label-display me-4"></label>
+            <input type="button" value="View" class="btn btn-primary btn-sm ms-3" id="btnView" />
+        </div>
+    </div>
+</form>
+
+<hr />
+
+<div id="searchResults">
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            
+            if ('@ViewBag.IsSelected' == "YES")
+            {
+                loadResult();
+            }
+
+            GetJobPositionName();
+
+            $('#IntakeCode').on('change', function () {
+                GetJobPositionName();
+            });
+
+            $('#btnView').click(function () {
+                loadResult();
+            });
+
+            function loadResult()
+            {
+                var url = '@Url.Action("ViewSummary", "ManualProcess")';
+                var intakeCode = $('#IntakeCode').val();
+                $('#searchResults').load(url, { intakeCode: intakeCode });
+            }
+
+            function GetJobPositionName()
+            {
+                var intakeCode = $('#IntakeCode').val();
+                fetch('@Url.Action("GetJobPositionName", "ManualProcess")' + '?intakeCode=' + intakeCode)
+                    .then(response => response.json())
+                    .then(data =>
+                    {
+                        $('#JobPositionName').text(data.jobPositionName);
+                    });
+            }
+        });
+    </script>
+}

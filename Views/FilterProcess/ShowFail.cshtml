@@ -1,0 +1,175 @@
+@model IEnumerable<JobAppHR.Models.FailedApplicants>
+
+@{
+    ViewData["Title"] = "Non-Eligible Applicants";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
+
+    var failureReasons = Model
+        .Select(m => m.FailedRemarks ?? string.Empty)
+        .Where(r => !string.IsNullOrWhiteSpace(r))
+        .Distinct()
+        .OrderBy(r => r)
+        .ToList();
+
+    var stageOptions = Model
+        .Select(m => ($"{m.FailedStatus} @ Stage {m.FailedStage}").Trim())
+        .Where(s => !string.IsNullOrWhiteSpace(s))
+        .Distinct()
+        .OrderBy(s => s)
+        .ToList();
+}
+
+<h4>@ViewData["Title"]</h4>
+
+<form id="form" asp-action="UpdateFail" method="post">
+    <label for="intakeCode">Intake Code</label>
+    <input type="text" value="@ViewBag.IntakeCode" id="intakeCode" name="intakeCode" style="border:none; font-weight: bold" readonly />
+    
+    <div class="float-end">
+        @Html.ActionLink("Export to Excel", "ExportToExcel", "IntakeApplicant", new { intakeCode = @ViewBag.IntakeCode, currentStage = "FAIL", freezeNo = @ViewBag.FreezeNo }, new { @class = "btn btn-outline-primary btn-sm" })
+    </div>
+
+    <div class="row mt-3 mb-2">
+        <div class="col-md-4 mb-2">
+            <label class="form-label mb-1" for="stageFilter">Filter by stage</label>
+            <select id="stageFilter" class="form-select form-select-sm">
+                <option value="">All stages</option>
+                @foreach (var stage in stageOptions)
+                {
+                    <option value="@stage">@stage</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4 mb-2">
+            <label class="form-label mb-1" for="reasonFilter">Filter by failure reason</label>
+            <select id="reasonFilter" class="form-select form-select-sm">
+                <option value="">All reasons</option>
+                @foreach (var reason in failureReasons)
+                {
+                    <option value="@reason">@reason</option>
+                }
+            </select>
+        </div>
+    </div>
+    <br />
+    <table class="table table-striped table-bordered dt-responsive compact" id="datagrid" style="width:100%">
+    <thead>
+        <tr>           
+            <th>
+                @Html.DisplayNameFor(model => model.ApplicationCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NameWithInitials)
+            </th>
+            <th>
+                Stage
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FailedRemarks)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrentStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) 
+        {
+            <tr>            
+                <td>
+                    @Html.ActionLink(item.ApplicationCode,"ViewApplicantData","IntakeApplicant",new {applicationCode = item.ApplicationCode}, new { target = "_blank" })
+                    <input type="hidden" asp-for="@item.ApplicationCode" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NameWithInitials)
+                </td>
+                <td>
+                    @($"{item.FailedStatus} @ Stage {item.FailedStage}")
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FailedRemarks)
+                    <input type="hidden" asp-for="@item.FailedRemarks" />
+                </td>
+                <td>
+                    <input type="checkbox" name="CurrentStatus" id="status_@i" /> OK
+                    <input type="hidden" asp-for="@item.CurrentStatus" id="currentstatus_@i" />
+                </td>
+                <td>
+                    @*<input type="text" name="Remarks" value="@item.Remarks" />*@
+                    <input asp-for="@item.Remarks" id="remarks_@i" class="form-control form-control-sm" maxlength="150"/>
+                </td>
+                <td>
+                    @Html.ActionLink(" ","ViewProgress",new {applicationCode = item.ApplicationCode}, new { @class="fa fa-line-chart", @style="text-decoration:none;", title = "View Progress", target = "_blank"})
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-light rounded border">
+        <h5 class="mb-0 text-muted" style="font-size: 1rem;">When applicants in this list are made Eligible and Saved, they will be transferred to final eligible list</h5>
+        <div class="d-flex gap-2">
+            <button id="btnProceed" type="submit" class="btn btn-success">Save & Close</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#datagrid').DataTable({
+                "paging": false,
+                columnDefs: [
+                    { targets: [$('thead tr th').length - 1], "orderable": false, }
+                ],
+            });
+
+            $('#stageFilter').on('change', function () {
+                var val = $(this).val();
+                table
+                    .column(2) // Stage column
+                    .search(val || '', false, false)
+                    .draw();
+            });
+
+            $('#reasonFilter').on('change', function () {
+                var val = $(this).val();
+                table
+                    .column(3) // Reason for Failure column
+                    .search(val || '', false, false)
+                    .draw();
+            });
+
+            $('input[type="checkbox"]').change(function (event) {
+                var ctrlId = $(this).attr('id');
+                var statusId = "#currentstatus_" + ctrlId.substring(7);
+                var remarksId = "#remarks_" + ctrlId.substring(7);
+
+                if (this.checked)
+                {
+                    $(statusId).val("PASS");
+                }
+                else 
+                {
+                    $(statusId).val("FAIL");
+                }
+            });
+
+            $('input[type="search"]').on('input', function () {
+
+                if ($(this).val() != "") {
+                    $("#btnProceed").prop("disabled", true);
+                }
+                else {
+                    $("#btnProceed").prop("disabled", false);
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,85 @@
+﻿@model IEnumerable<JobAppHR.Models.Subject>
+
+@{
+    ViewData["Title"] = "Subjects";
+}
+
+<style>
+    table.dataTable thead tr {
+      background-color: lightgrey;
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-outline-primary btn-sm"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;Create New</a>
+</p>
+<div class="alert alert-info">
+    <h5 style="text-align: center">@ViewBag.Message</h5>
+</div>
+<table class="table table-striped table-bordered dt-responsive compact nowrap" id="datagrid">
+    <thead>
+        <tr>
+@*            <th>
+                @Html.DisplayNameFor(model => model.SubjectId)
+            </th>*@
+            <th>
+                @Html.DisplayNameFor(model => model.SubjectName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExamCode)
+            </th>
+@*            <th>
+                @Html.DisplayNameFor(model => model.Mandatory)
+            </th>*@
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) 
+        {
+            <tr>
+@*                <td>
+                    @Html.DisplayFor(modelItem => item.SubjectId)
+                </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubjectName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExamCode)
+                </td>
+@*                <td>
+                    @Html.DisplayFor(modelItem => item.Mandatory)
+                </td>*@
+                <td>
+                    @Html.ActionLink(" ", "Edit", new { id=item.SubjectId }, new { @class="fa fa-pencil", @style="text-decoration:none;", title = "Edit" })
+@*                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+*@                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $('#datagrid').DataTable({
+                "pageLength": 50,
+                columnDefs: [
+                    { targets: [$('thead tr th').length - 1], "orderable": false, }
+                ],
+            });
+
+            var val = '@ViewBag.message';
+            if (val != "")
+                $('.alert').show();
+            else
+                $('.alert').hide();
+        });
+
+    </script>
+}
+

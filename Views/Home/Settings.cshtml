@@ -1,0 +1,267 @@
+@{
+    ViewData["Title"] = "Appearance Settings";
+}
+
+<div class="settings-layout-wrapper animate-fade-in-up">
+    <!-- Header Console containing Title and Live Preview Side-by-Side -->
+    <div class="settings-console-header">
+        <div class="header-info-block">
+            <span class="section-kicker">UI Preferences</span>
+            <h1>Appearance Settings</h1>
+            <p>Customize your workspace layout, colors, typography, and interface scale to match your professional workflow. Changes are applied instantly.</p>
+            
+            <div class="console-actions">
+                <a class="btn btn-outline-primary btn-back-dashboard" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+
+            <div class="settings-status-card">
+                <span class="status-title"><i class="fa-solid fa-sliders me-1"></i> Current Theme Config</span>
+                <p class="status-text" data-theme-status>sky shell, default background, inter font, blue accent, md size</p>
+            </div>
+        </div>
+
+        <div class="header-preview-block" data-theme-preview>
+            <div class="mock-app-window">
+                <!-- Titlebar/Window Controls -->
+                <div class="mock-window-header">
+                    <div class="window-dot red"></div>
+                    <div class="window-dot yellow"></div>
+                    <div class="window-dot green"></div>
+                    <span class="window-title">JobApp-HR (Workspace Preview)</span>
+                </div>
+                
+                <!-- Navbar Mock -->
+                <div class="mock-navbar">
+                    <div class="mock-nav-left">
+                        <span class="mock-logo"><i class="fa-solid fa-briefcase"></i></span>
+                        <span class="mock-nav-brand">JobApp-HR</span>
+                        <div class="mock-nav-links">
+                            <span class="mock-nav-link active">Dashboard</span>
+                            <span class="mock-nav-link">Applicants</span>
+                            <span class="mock-nav-link">Screening</span>
+                        </div>
+                    </div>
+                    <div class="mock-nav-right">
+                        <div class="mock-user-chip">
+                            <div class="mock-avatar">U</div>
+                            <div class="mock-user-info">
+                                <span class="mock-username">User</span>
+                                <span class="mock-role">Admin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content Mock -->
+                <div class="mock-main">
+                    <div class="mock-sidebar">
+                        <span class="mock-sidebar-item active"><i class="fa-solid fa-house"></i> Overview</span>
+                        <span class="mock-sidebar-item"><i class="fa-solid fa-user-tie"></i> Positions</span>
+                        <span class="mock-sidebar-item"><i class="fa-solid fa-gears"></i> Process</span>
+                    </div>
+                    <div class="mock-content-area">
+                        <div class="mock-page-surface">
+                            <div class="mock-page-header">
+                                <div class="mock-title-block">
+                                    <div class="mock-line title"></div>
+                                    <div class="mock-line subtitle"></div>
+                                </div>
+                                <div class="mock-btn-primary">Action</div>
+                            </div>
+                            <div class="mock-data-table">
+                                <div class="mock-table-header">
+                                    <div class="mock-table-cell">Job Title</div>
+                                    <div class="mock-table-cell">Applicants</div>
+                                    <div class="mock-table-cell">Status</div>
+                                </div>
+                                <div class="mock-table-row">
+                                    <div class="mock-table-cell"><div class="mock-line text"></div></div>
+                                    <div class="mock-table-cell"><div class="mock-line text short"></div></div>
+                                    <div class="mock-table-cell"><span class="mock-badge">Active</span></div>
+                                </div>
+                                <div class="mock-table-row">
+                                    <div class="mock-table-cell"><div class="mock-line text"></div></div>
+                                    <div class="mock-table-cell"><div class="mock-line text short"></div></div>
+                                    <div class="mock-table-cell"><span class="mock-badge">Active</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Horizontal Options Grid (5 Columns Side-by-Side) -->
+    <div class="settings-horizontal-grid">
+        <section class="settings-card">
+            <h3>Shell Colors</h3>
+            <p>Change the admin header and panel surfaces.</p>
+            <div class="setting-options" data-theme-group="shell">
+                <button type="button" class="setting-option" data-theme-group="shell" data-theme-value="white">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #ffffff, #f8fafc);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">White</span>
+                        <span class="setting-desc">Clean neutral shell</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="shell" data-theme-value="ice">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #f5faff, #edf6ff);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Ice</span>
+                        <span class="setting-desc">Very light blue-white</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="shell" data-theme-value="mist">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Mist</span>
+                        <span class="setting-desc">Soft slate neutral</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="shell" data-theme-value="sky">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #dff0ff, #cfe7ff);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Sky</span>
+                        <span class="setting-desc">Current light blue tone</span>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <section class="settings-card">
+            <h3>Backgrounds</h3>
+            <p>Select the overall page mood for the workspace.</p>
+            <div class="setting-options" data-theme-group="background">
+                <button type="button" class="setting-option" data-theme-group="background" data-theme-value="default">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #ffffff, #f6f8fc);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Default</span>
+                        <span class="setting-desc">Bright and balanced</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="background" data-theme-value="calm">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Calm</span>
+                        <span class="setting-desc">Soft neutral canvas</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="background" data-theme-value="night">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #0b1120, #111827);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Night</span>
+                        <span class="setting-desc">Dark admin workspace</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="background" data-theme-value="slate">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #f1f5f9, #cbd5e1);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Slate</span>
+                        <span class="setting-desc">Cool corporate finish</span>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <section class="settings-card">
+            <h3>Fonts</h3>
+            <p>Change the typography used across the interface.</p>
+            <div class="setting-options" data-theme-group="font">
+                <button type="button" class="setting-option" data-theme-group="font" data-theme-value="inter">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #e0f2fe, #bfdbfe);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Inter</span>
+                        <span class="setting-desc">Clean default UI font</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="font" data-theme-value="jakarta">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #fce7f3, #fbcfe8);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Plus Jakarta</span>
+                        <span class="setting-desc">Sharper and modern</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="font" data-theme-value="source">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Source Sans 3</span>
+                        <span class="setting-desc">Readable and compact</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="font" data-theme-value="grotesk">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #ede9fe, #ddd6fe);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Space Grotesk</span>
+                        <span class="setting-desc">More expressive headings</span>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <section class="settings-card">
+            <h3>Accent Colors</h3>
+            <p>Swap the primary color on highlights.</p>
+            <div class="setting-options" data-theme-group="accent">
+                <button type="button" class="setting-option" data-theme-group="accent" data-theme-value="blue">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #0056b3, #003c7c);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Blue</span>
+                        <span class="setting-desc">Current brand tone</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="accent" data-theme-value="emerald">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #0f766e, #115e59);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Emerald</span>
+                        <span class="setting-desc">Fresh operational look</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="accent" data-theme-value="graphite">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #334155, #1e293b);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Graphite</span>
+                        <span class="setting-desc">Muted enterprise style</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="accent" data-theme-value="indigo">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #4f46e5, #3730a3);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Indigo</span>
+                        <span class="setting-desc">Sharper contrast</span>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <section class="settings-card">
+            <h3>Size</h3>
+            <p>Adjust the base scale of text and spacing.</p>
+            <div class="setting-options" data-theme-group="size">
+                <button type="button" class="setting-option" data-theme-group="size" data-theme-value="sm">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #f8fafc, #cbd5e1);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Compact</span>
+                        <span class="setting-desc">Fits more content</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="size" data-theme-value="md">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Default</span>
+                        <span class="setting-desc">Balanced reading size</span>
+                    </div>
+                </button>
+                <button type="button" class="setting-option" data-theme-group="size" data-theme-value="lg">
+                    <div class="setting-swatch" style="background: linear-gradient(135deg, #ede9fe, #c4b5fd);"></div>
+                    <div class="setting-meta">
+                        <span class="setting-name">Large</span>
+                        <span class="setting-desc">Easier to read</span>
+                    </div>
+                </button>
+            </div>
+        </section>
+    </div>
+</div>

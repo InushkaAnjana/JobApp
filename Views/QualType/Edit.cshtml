@@ -1,0 +1,35 @@
+﻿@model JobAppHR.Models.QualTypes
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Edit - Professional Qualification Institute</h3>
+
+<hr />
+<div class="row">
+    <div class="col-md-5">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="QTypeID" class="form-control" />
+            <div class="form-group">
+                <label asp-for="QualType" class="control-label"></label>
+                <input asp-for="QualType" class="form-control form-control-sm" maxlength="50" />
+                <span asp-validation-for="QualType" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

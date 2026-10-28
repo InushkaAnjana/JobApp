@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Reverse Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Reverse Status of Applicant's Eligibility/Non-Eligibility</h3>
+<div class="alert alert-info">
+    <h5 style="text-align: center">@ViewBag.Message</h5>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="ReverseStatus">
+            <input type="hidden" value="@ViewBag.ApplicationCode" id="applicationCode" name="applicationCode" class="form-control" />
+            <br />
+            @Html.Label("Application Code")
+            <input type="text" value="@ViewBag.ApplicationCode" style="border:none; font-weight: bold" readonly />
+            <div class="form-group">
+                <label class="control-label">Remarks</label>
+                <input type="text" name="remarks" id="remarks"  class="form-control form-control-sm text-capitalize" maxlength="100" placeholder="Enter the reason" required />
+            </div>
+            <br />
+            @{
+                if (@ViewBag.status == "" || @ViewBag.status != "SUCCESS")
+                {
+                    <div class="form-group">
+                        <input type="submit" value="Make Eligible" class="btn btn-primary" />
+                    </div>
+                }
+            }
+        </form>
+    </div>
+</div>
+<br />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        var val = '@ViewBag.Message';
+        if (val != "")
+            $('.alert').show();
+        else
+            $('.alert').hide();
+    </script>
+}
+

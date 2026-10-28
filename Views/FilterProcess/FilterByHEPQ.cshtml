@@ -1,0 +1,173 @@
+@model IEnumerable<JobAppHR.Models.HEPQFilter>
+
+@{
+    ViewData["Title"] = "Filter By Higher/Professional Qualifications";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
+}
+
+<h4>@ViewData["Title"]</h4>
+
+<form id="form" asp-action="UpdateHEPQFilter" method="post">
+    @Html.Label("Intake Code")
+    <input type="text" value="@ViewBag.IntakeCode" id="intakeCode" name="intakeCode" style="border:none; font-weight: bold" readonly />
+    <div id="tableLoader" class="position-absolute top-50 start-50 translate-middle text-center z-3" style="margin-top: 50px;">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-3 fw-semibold">Loading applicant data...</p>
+    </div>
+
+    <div class="table-shell">
+    <table class="table table-striped table-bordered compact" id="datagrid" style="width:100%; table-layout:fixed">
+        <thead>
+        <tr>           
+            <th>
+                @Html.DisplayNameFor(model => model.ApplicationCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NameWithInitials)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HEQual)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProfQual)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrentStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+        <tbody>
+        @foreach (var item in Model) 
+        {
+            <tr>            
+                <td>
+                    @*@Html.DisplayFor(modelItem => item.ApplicationCode)*@
+                    @Html.ActionLink(item.ApplicationCode,"ViewApplicantData","IntakeApplicant",new {applicationCode = item.ApplicationCode}, new { target = "_blank" })
+                    <input type="hidden" name="ApplicationCode" value="@item.ApplicationCode" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NameWithInitials)
+                </td>
+                <td>
+                    @{
+                        if (item.HEQual != null)
+                        {
+                            string[] hequal = item.HEQual.Split("|");
+                            foreach (string y in hequal)
+                            {
+                                <text>&bull; @y</text>
+                                <br />
+                            }
+                        }
+                    }
+                </td>
+                <td>
+                    @{
+                        if (item.ProfQual != null)
+                        {
+                            string[] profqual = item.ProfQual.Split("|");
+                            foreach (string y in profqual)
+                            {
+                                <text>&bull; @y</text>
+                                <br />
+                            }
+                        }
+                    }
+                </td>
+                <td>
+                    @* <input type="checkbox" name="CurrentStatus" id="status_@i" /> OK *@
+                        <select name="CurrentStatus" id="status_@i">
+                            <option value="PASS">PASS</option>
+                            <option value="FAIL">FAIL</option>
+                            <option value="TO-CHECK" selected>TO-CHECK</option>
+                        </select>
+                </td>
+                <td>
+                    @*<input type="text" name="Remarks" value="@item.Remarks" />*@
+                    <input name="Remarks" id="remarks_@i" value="@item.Remarks" />
+                </td>
+                <td>
+                    @Html.ActionLink(" ","ViewProgress",new {applicationCode = item.ApplicationCode}, new { @class="fa fa-line-chart", @style="text-decoration:none;", title = "View Progress", target = "_blank"})
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+    </table>
+    </div>
+
+    <div class="d-flex justify-content-end align-items-center mt-4 pt-3 border-top">
+        <button id="btnProceed" type="submit" class="btn btn-success shadow-modern-sm">Proceed With Selected List</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() 
+        {
+            $('#datagrid').DataTable({
+                "paging": false,
+                "order": [],
+                "autoWidth": false,
+                "scrollX": false,
+                columnDefs: [
+                    { targets: [0], "orderable": false },
+                    { targets: [$('thead tr th').length - 1],"orderable": false,}
+                ],
+                initComplete: function() {
+                    $('.table-shell').css('visibility', 'visible').hide().fadeIn(300);
+                    $('#tableLoader').fadeOut(200);
+                }
+            });
+
+            $('input[type="checkbox"]').change(function (event) 
+            { 
+                var ctrlId = $(this).attr('id');
+                var statusId = "#currentstatus_" + ctrlId.substring(7);
+                var remarksId = "#remarks_" + ctrlId.substring(7);
+
+                if (this.checked)
+                {
+                    $(statusId).val("PASS");
+                }
+                else 
+                {
+                    $(statusId).val("FAIL");
+                }
+            });
+
+            $("select").on('change', function (e) 
+            {
+                var optionSelected = $("option:selected", this);
+                var valueSelected = $(this).val();
+
+                //alert(valueSelected);
+
+                var ctrlId = $(this).attr('id');
+                var statusId = "#currentstatus_" + ctrlId.substring(7);
+                var remarksId = "#remarks_" + ctrlId.substring(7);
+
+                $(statusId).val(valueSelected);
+            });
+
+            $('input[type="search"]').on('input', function () {
+
+                if ($(this).val() != "")
+                {
+                    $("#btnProceed").prop("disabled",true);
+                }
+                else
+                {
+                    $("#btnProceed").prop("disabled",false);
+                }                   
+            });
+        });
+    </script>
+}

@@ -1,0 +1,369 @@
+@model IEnumerable<JobAppHR.Models.ShortListed>
+
+@{
+    ViewData["Title"] = "Short-Listed Applicants -  For ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
+}
+
+@{
+    if (ViewBag.CurrentStage != "")
+    {
+        <h4>@ViewData["Title"] @ViewBag.CurrentStage</h4>
+    }
+    else
+    {
+        <h4>@ViewData["Title"] Employment</h4>
+    }
+}
+
+<style>
+    .noborder-textbox
+    {
+        border:none; 
+        font-weight: bold;
+    }
+
+    
+    .light-black-bg {
+        background-color: lightgrey; /* Light black color */
+        color: black; /* Optional: to make text readable */
+    }
+
+    .light-black-bg input {
+        background-color: lightgrey; /* Light black color */
+        color: black; /* Optional: to make text readable */
+        border: none; /* Optional: to remove border */
+    }
+
+    .green-text {
+        color: green;
+    }
+
+    .green-bg {
+        background-color: palegreen !important;
+    }
+
+</style>
+
+<form id="form" asp-action="UpdateShortListed" method="post">
+    <div class="container">
+        <div class="row light-black-bg">
+            <div class="col-4">
+                @Html.Label("Intake Code")
+                <input type="text" value="@ViewBag.IntakeCode" id="intakeCode" name="intakeCode" class="noborder-textbox" readonly />
+            </div>
+
+            <div class="col-4">
+                @{
+                    if (ViewBag.FreezeNo != null && ViewBag.FreezeNo.ToString() != "")
+                        @Html.Label("Freeze No")
+                }
+                <input type="text" value="@ViewBag.FreezeNo" id="freezeNo" name="freezeNo" class="noborder-textbox" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-3">
+            Shortlisted to Exam:<input type="text" id="countx" value="@ViewBag.CountExamSelected" readonly class="noborder-textbox" />
+        </div>
+        <div class="col-3">
+            Shortlisted to Interview:<input type="text" id="county" value="@ViewBag.CountInterviewSelected" readonly class="noborder-textbox" />
+        </div>
+        <div class="col-3">
+            Final Selected Applicants:<input type="text" id="countz" value="@ViewBag.CountJobSelected" readonly class="noborder-textbox" />
+        </div>
+    </div>
+
+
+    <input type="hidden" value="@ViewBag.CurrentStage" id="currentStage" name="currentStage" />
+    <table class="table table-striped table-bordered dt-responsive compact" id="datagrid" style="width:100%">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.ApplicationCode)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NameWithInitials)
+                </th>
+                @{
+                    if (@ViewBag.CurrentStage == "EXAM")
+                    {
+                        <th>
+                            @Html.DisplayNameFor(model => model.ExamSelected)
+                        </th>
+                    }
+                    else if (@ViewBag.CurrentStage == "INTERVIEW")
+                    {
+                        <th>
+                            @Html.DisplayNameFor(model => model.ExamSelected)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.InterviewSelected)
+                        </th>
+                    }
+                    else if (@ViewBag.CurrentStage == "JOB")
+                    {
+                        <th>
+                            @Html.DisplayNameFor(model => model.ExamSelected)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.InterviewSelected)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.JobSelected)
+                        </th>
+                    }
+                    else if (@ViewBag.CurrentStage == "")
+                    {
+                        <th>
+                            @Html.DisplayNameFor(model => model.ExamSelected)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.InterviewSelected)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.JobSelected)
+                        </th>
+                    }
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="@(item.JobSelected == "YES" ? "green-bg" : "")">
+                    <td>
+                        @*@Html.DisplayFor(modelItem => item.ApplicationCode)*@
+                        @Html.ActionLink(item.ApplicationCode, "ViewApplicantData", "IntakeApplicant", new { applicationCode = item.ApplicationCode }, new { target = "_blank" })
+                        <input type="hidden" asp-for="@item.ApplicationCode" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NameWithInitials)
+                    </td>
+                    @{
+                        if (ViewBag.CurrentStage == "EXAM")
+                        {
+                            <td>
+                                @{
+                                    if (item.ExamSelected == "YES")
+                                    {
+                                        <input type="checkbox" name="examselected" id="examselected_@i" checked />
+                                    }
+                                    else
+                                    {
+                                        <input type="checkbox" name="examselected" id="examselected_@i" />
+                                    }
+                                }
+                                <input type="hidden" asp-for="@item.ExamSelected" id="currentstatus_@i" />
+                            </td>
+                        }
+
+                        else if (ViewBag.CurrentStage == "INTERVIEW")
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ExamSelected)
+                            </td>
+                            
+                            <td>
+                                @{
+                                    if (item.InterviewSelected == "YES")
+                                    {
+                                        <input type="checkbox" name="interviewselected" id="interviewselected_@i" checked />
+                                    }
+                                    else if (item.ExamSelected == "YES" && item.InterviewSelected == "NO")
+                                    {
+                                        <input type="checkbox" name="interviewselected" id="interviewselected_@i" />
+                                    }
+                                    else if (item.ExamSelected == "YES")
+                                    {
+                                        <input type="checkbox" name="interviewselected" id="interviewselected_@i" />
+                                    }
+                                    else
+                                    {
+                                        <text>N/A</text>
+                                    }
+                                }
+                                <input type="hidden" asp-for="@item.InterviewSelected" id="currentstatus_@i" />
+                            </td>
+                        }
+
+                        else if (ViewBag.CurrentStage == "JOB")
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ExamSelected)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.InterviewSelected)
+                            </td>
+                            
+                            <td>
+                                @{
+                                    if (item.JobSelected == "YES")
+                                    {
+                                        <input type="checkbox" name="jobselected" id="jobselected_@i" checked />
+                                    }
+                                    else if (item.InterviewSelected == "YES" && item.JobSelected == "NO")
+                                    {
+                                        <input type="checkbox" name="jobselected" id="jobselected_@i" />
+                                    }
+                                    else if (item.InterviewSelected == "YES")
+                                    {
+                                        <input type="checkbox" name="jobselected" id="jobselected_@i" />
+                                    }
+                                    else
+                                    {
+                                        <text>N/A</text>
+                                    }
+                                }
+                                <input type="hidden" asp-for="@item.JobSelected" id="currentstatus_@i" />
+                            </td>
+                        }
+
+                        else if (ViewBag.CurrentStage == "")
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ExamSelected)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.InterviewSelected)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.JobSelected)
+                            </td>
+                        }
+                    }
+                    
+                </tr>
+
+                i++;
+            }
+        </tbody>
+    </table>
+
+    @{
+        string btnText = "Next Step";
+
+        if (ViewBag.CurrentStage == "JOB")
+        {
+            btnText = "Confirm Finalists";
+        }
+
+        if (ViewBag.CurrentStage != "")
+        {
+            <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-light rounded border">
+                <h5 class="mb-0 text-muted" style="font-size: 1rem;">If you have made any changes, first click on Save before moving to the next step or confirming the list</h5>
+                <div class="d-flex gap-2">
+                    <button id="btnNext" type="button" class="btn btn-primary">@btnText</button>
+                    <button id="btnProceed" type="submit" class="btn btn-success">Save & Close</button>
+                </div>
+            </div>
+        }
+    }
+   
+</form>
+
+@section Scripts {
+
+    <script src="~/lib/sweetalert/sweetalert.min.js"></script>
+    <script>
+        $(document).ready(function()
+        {
+            $('#datagrid').DataTable({
+                "paging": false,
+                columnDefs: [
+                    { targets: [$('thead tr th').length - 1],"orderable": false,}
+                ],
+            });
+
+            $('input[type="checkbox"]').change(function (event)
+            {
+                var ctrlId = $(this).attr('id');
+                var ind = ctrlId.indexOf("_");
+                var statusId = "#currentstatus_" + ctrlId.substring(ind+1);
+                var countx = parseInt($("#countx").val());
+                var county = parseInt($("#county").val());
+                var countz = parseInt($("#countz").val());
+                var stage = '@ViewBag.CurrentStage';
+
+                //alert(id + "-" + statusId);
+                //alert(this.checked);
+
+                if (this.checked)
+                {
+                    $(statusId).val("YES");
+
+                    if (stage == "EXAM") { 
+                        countx = countx + 1;
+                        $("#countx").val(countx);
+                    }
+                    if (stage == "INTERVIEW") {
+                        county = county + 1;
+                        $("#county").val(county);
+                    }
+                    if (stage == "JOB") {
+                        countz = countz + 1;
+                        $("#countz").val(countz);
+                    }
+                }
+                else
+                {
+                    //alert(statusId);
+                    $(statusId).val("NO");
+
+                    if (stage == "EXAM") {
+                        countx = countx - 1;
+                        $("#countx").val(countx);
+                    }
+                    if (stage == "INTERVIEW") {
+                        county = county - 1;
+                        $("#county").val(county);
+                    }
+                    if (stage == "JOB") {
+                        countz = countz - 1;
+                        $("#countz").val(countz);
+                    }
+                }
+
+                //alert($("#currentstatus_0").val());
+            });
+
+            $('input[type="search"]').on('input', function () {
+
+                if ($(this).val() != "")
+                {
+                    $("#btnProceed").prop("disabled",true);
+                }
+                else
+                {
+                    $("#btnProceed").prop("disabled",false);
+                }
+            });
+
+            $('#btnNext').click(function () {
+                var intakeCode = $("#intakeCode").val();
+                swal({
+                    title: "Are you sure to move to next step",
+                    text: "Once confirmed, you will not be able to revise the list!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                .then((willConfirm) => {
+                    if (willConfirm) {
+                        //swal("Poof! Your imaginary file has been deleted!", {
+                        //icon: "success",
+                        //Confirm();
+                        //alert('@ViewBag.CurrentStage');
+                        var url = '@Html.Raw(Url.Action("MoveNext", "EligibleApplicant", new { intakeCode = @ViewBag.IntakeCode, currentStage = ViewBag.CurrentStage, freezeNo = ViewBag.FreezeNo }))';
+                        //alert(url);
+                        window.location.href = url;
+
+                    }
+                });
+            });
+        });
+    </script>
+}
+

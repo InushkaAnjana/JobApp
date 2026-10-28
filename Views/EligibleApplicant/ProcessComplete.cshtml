@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Short Listing for - ";
+}
+
+
+<h5>@ViewData["Title"] @ViewBag.CurrentStage</h5>
+
+@Html.Label("Intake Code")
+<strong>@ViewBag.IntakeCode</strong>
+
+@{
+    if (ViewBag.Message == "SUCCESS")
+    {
+        <div class="mt-4 p-5 bg-light text-black border border-1 border-light rounded-3">
+            <h4 style="color: darkgreen">Short-Listing the eligible applicants for @ViewBag.CurrentStage is successfully completed.</h4>
+            @*<h5>You can view the final list by using the menu selection -> Application Screening > Confirmed Final Lists</h5>*@
+        </div>
+    }
+    else
+    {
+        <div class="mt-4 p-5 bg-light text-black border border-1 border-light rounded-3">
+            <h4 style="color:red">Short-Listing the eligible applicants for @ViewBag.CurrentStage failed!</h4>
+            <h5>Please try again.</h5>
+        </div>
+    }
+}
+

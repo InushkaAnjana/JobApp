@@ -1,0 +1,62 @@
+﻿@model JobAppHR.Models.Subject
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h3>Edit - Subject</h3>
+<div class="alert alert-info">
+    <h5 style="text-align: center">@ViewBag.Message</h5>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="SubjectId" class="form-control" />
+            <div class="row">
+                <div class="col-4 form-group">
+                    <label asp-for="SubjectName" class="control-label"></label>
+                    <input asp-for="SubjectName" class="form-control form-control-sm" />
+                    <span asp-validation-for="SubjectName" class="text-danger"></span>
+                </div>            
+                <div class="col-2 form-group">
+                    <label asp-for="ExamCode" class="control-label"></label>
+                    <select asp-for="ExamCode" asp-items="@ViewBag.ExamCode" class="form-select form-select-sm">
+                    </select>
+                    <span asp-validation-for="ExamCode" class="text-danger"></span>
+                </div>            
+                <div class="col-2 form-group">
+                    <label asp-for="Mandatory" class="control-label"></label>
+                    <select asp-for="Mandatory" class="form-select form-select-sm">
+                        <option value="NO">NO</option>
+                        <option value="YES">YES</option>
+                        <option value="OPT">OPTIONAL</option>
+                    </select>
+                    <span asp-validation-for="Mandatory" class="text-danger"></span>
+                </div>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+        <script>
+            var val = '@ViewBag.Message';
+            if (val != "")
+                $('.alert').show();
+            else
+                $('.alert').hide();
+        </script>
+}

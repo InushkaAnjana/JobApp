@@ -1,0 +1,106 @@
+@{
+    ViewData["Title"] = "Developer Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dev Login - JobApp-HR</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-card h3 {
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .dev-badge {
+            background: #ff6b35;
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+            border: none;
+            padding: 0.6rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <h3>JobApp-HR <span class="dev-badge">DEV LOGIN</span></h3>
+            <p class="text-muted small mb-0">Select a user account to test collaborative screening</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2 small">@ViewBag.Error</div>
+        }
+
+        <form method="post" asp-action="DevLogin" asp-controller="Home">
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+            <div class="mb-3">
+                <label for="userId" class="form-label fw-semibold">User Account</label>
+                <select name="userId" id="userId" class="form-select" required>
+                    <option value="">-- Select a user --</option>
+                    @if (ViewBag.UserList != null)
+                    {
+                        foreach (System.Data.DataRow row in ((System.Data.DataTable)ViewBag.UserList).Rows)
+                        {
+                            string uid = row["UserId"].ToString();
+                            string grp = row["UserGroup"].ToString();
+                            string roleLabel = (grp == "0" || grp == "1") ? "Admin" : "Normal";
+                            <option value="@uid">@uid (@roleLabel)</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-login">Sign In</button>
+            </div>
+        </form>
+
+        <p class="text-center text-muted small mt-3 mb-0">
+            <i class="text-warning">⚠</i> This page is only available in dev/test mode
+        </p>
+    </div>
+</body>
+</html>

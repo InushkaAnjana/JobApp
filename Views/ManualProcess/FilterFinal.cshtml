@@ -1,0 +1,681 @@
+@model IEnumerable<JobAppHR.Models.ManualFilter>
+
+@{
+    ViewData["Title"] = "Select in to the final list from - " + ViewBag.CurrentStageName;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int i = 0;
+}
+
+<style>
+    .smallfont
+    {
+        font-size:smaller;
+    }
+
+    .table-shell {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        visibility: hidden; /* Prevent FOUC */
+    }
+
+    .table-shell .dataTables_wrapper {
+        width: 100%;
+    }
+
+    .table-shell table.dataTable tbody td {
+        vertical-align: top;
+        font-size: 0.8rem;
+        padding: 4px 6px;
+    }
+
+    .table-shell table.dataTable thead th {
+        font-size: 0.8rem;
+        padding: 6px;
+        white-space: nowrap;
+    }
+
+    tfoot input {
+        padding: 3px;
+        box-sizing: border-box;
+    }
+
+    thead input {
+        padding: 3px;
+        box-sizing: border-box;
+    }
+
+    /* Column width constraints for professional layout */
+    .col-appcode { width: 100px; }
+    .col-name { width: 140px; }
+    .col-dob { width: 80px; }
+    .col-age { width: 75px; }
+    .col-overage { width: 65px; }
+    .col-al { width: 50px; }
+    .col-mgrades { width: 90px; }
+    .col-ol { width: 50px; }
+    .col-hequal { max-width: 200px; white-space: normal; word-wrap: break-word; }
+    .col-profqual { max-width: 160px; white-space: normal; word-wrap: break-word; }
+    .col-eligible { width: 85px; }
+    .col-remarks { width: 130px; }
+    .col-action { width: 30px; }
+
+    /* Make the eligible dropdown compact */
+    #datagrid select {
+        font-size: 0.75rem;
+        padding: 2px 4px;
+        width: auto;
+    }
+
+    /* Make the remarks input compact */
+    #datagrid input[type="text"] {
+        font-size: 0.75rem;
+        padding: 2px 4px;
+        width: 100%;
+    }
+
+    /* Column toggle pills */
+    .toggle-vis {
+        cursor: pointer;
+        padding: 4px 10px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.2s ease-in-out;
+        user-select: none;
+    }
+    
+    .toggle-vis:hover {
+        background-color: #e2e6ea;
+        color: #212529;
+        border-color: #dae0e5;
+    }
+
+    .toggle-vis.active {
+        background-color: #0d6efd;
+        color: #fff;
+        border-color: #0d6efd;
+    }
+    
+    .toggle-vis.active:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        color: #fff;
+    }
+
+    /* ── Real-Time Collaborative Screening Styles ── */
+
+    /* Row locked by another user */
+    .row-locked {
+        opacity: 0.6;
+        pointer-events: none;
+        position: relative;
+    }
+    .row-locked select,
+    .row-locked input[type="text"] {
+        background-color: #f0f0f0 !important;
+        cursor: not-allowed;
+    }
+
+    /* Row flash on remote update */
+    .row-remote-update {
+        animation: rowFlash 2s ease;
+    }
+    @@keyframes rowFlash {
+        0%   { background-color: #d4edda; }
+        100% { background-color: transparent; }
+    }
+
+    /* Lock badge */
+    .lock-badge {
+        display: inline-block;
+        background: #ff6b35;
+        color: #fff;
+        font-size: 0.6rem;
+        padding: 1px 6px;
+        border-radius: 8px;
+        white-space: nowrap;
+        margin-left: 4px;
+        font-weight: 600;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* Save indicator */
+    .save-indicator {
+        display: inline-block;
+        margin-left: 4px;
+        font-size: 0.7rem;
+    }
+    .si-saving { color: #6c757d; }
+    .si-saved  { color: #198754; }
+    .si-error  { color: #dc3545; }
+
+    /* Connection status */
+    .connection-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.7rem;
+        padding: 2px 10px;
+        border-radius: 12px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    .status-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot-connected    { background: #198754; box-shadow: 0 0 4px #198754; }
+    .dot-connecting   { background: #ffc107; }
+    .dot-reconnecting { background: #ffc107; animation: pulse 1s infinite; }
+    .dot-disconnected { background: #dc3545; }
+    @@keyframes pulse { 50% { opacity: 0.4; } }
+    @@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Active users panel */
+    .active-users-panel {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.75rem;
+        color: #495057;
+    }
+    .user-chip-small {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: #e9ecef;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+    }
+    .user-chip-self {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    /* Toast notifications */
+    .screening-toasts {
+        position: fixed;
+        top: 70px;
+        right: 16px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        pointer-events: none;
+    }
+    .screening-toast {
+        background: #212529;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        opacity: 0;
+        transform: translateX(20px);
+        transition: all 0.3s ease;
+        pointer-events: auto;
+    }
+    .screening-toast.toast-show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .screening-toast.toast-hide {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    .toast-warning { background: #856404; }
+    .toast-error   { background: #842029; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h4 class="mb-0">@ViewData["Title"]</h4>
+    <div class="d-flex align-items-center gap-3">
+        <div id="activeUsersPanel" class="active-users-panel d-none">
+            <i class="fa fa-users text-muted"></i>
+            <span class="active-users-list"></span>
+        </div>
+        <div id="connectionStatus" class="connection-status status-connecting">
+            <span class="status-dot dot-connecting"></span>
+            <span class="status-text">Connecting...</span>
+        </div>
+    </div>
+</div>
+
+<form id="form" asp-action="UpdateFinal" method="post">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            @Html.Label("Intake Code", null, new { @class = "me-2 fw-semibold text-muted mb-0" })
+            <input type="hidden" value="@ViewBag.CurrentStage" id="currentStage" name="currentStage" />
+            <input type="text" value="@ViewBag.IntakeCode" id="intakeCode" name="intakeCode" class="form-control-plaintext form-control-sm fw-bold w-auto" readonly />
+        </div>
+        <div>
+            @Html.ActionLink("Export to Excel", "ExportToExcel", "IntakeApplicant", new { intakeCode = @ViewBag.IntakeCode, currentStage = @ViewBag.CurrentStage, currentStatus = @ViewBag.CurrentStatus, freezeNo = @ViewBag.FreezeNo }, new { @class = "btn btn-outline-primary btn-sm shadow-sm" })
+        </div>
+    </div>
+
+    <div id="toggleColumnContainer" class="d-none align-items-center flex-wrap gap-2">
+        <span class="text-muted small me-2"><i class="fa fa-sliders me-1"></i>Toggle Columns:</span>
+        <a class="toggle-vis active" data-column="0">Application Code</a>
+        <a class="toggle-vis active" data-column="1">Name</a>
+        <a class="toggle-vis active" data-column="2">DOB</a>
+        <a class="toggle-vis active" data-column="3">Age</a>
+        <a class="toggle-vis active" data-column="4">Overage</a>
+        <a class="toggle-vis active" data-column="5">A/L</a>
+        <a class="toggle-vis active" data-column="6">Mandatory O/L</a>
+        <a class="toggle-vis active" data-column="7">O/L</a>
+        <a class="toggle-vis active" data-column="8">Higher Edu.</a>
+    </div>
+
+    <div id="tableLoader" class="position-absolute top-50 start-50 translate-middle text-center z-3" style="margin-top: 50px;">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-3 fw-semibold">Loading applicant data...</p>
+    </div>
+
+    <div class="table-shell">
+    <table class="table table-striped table-bordered dt-responsive compact" id="datagrid" style="width:100%">
+        <thead>
+            <tr>           
+            <th class="col-appcode">
+                App.Code
+            </th>
+            <th class="col-name">
+                Name
+            </th>
+            <th class="col-dob">
+                @Html.DisplayNameFor(model => model.DOB)
+            </th>
+            <th class="col-age">
+                @Html.DisplayNameFor(model => model.Age)
+            </th>
+            <th class="col-overage">
+                @Html.DisplayNameFor(model => model.Overage)
+            </th>
+            <th class="col-al">
+                @Html.DisplayNameFor(model => model.ALGrades)
+            </th>
+            <th class="col-mgrades">
+                M-Grades
+            </th>
+            <th class="col-ol">
+                @Html.DisplayNameFor(model => model.OLGrades)
+            </th>
+            <th class="col-hequal">
+                Higher Edu.
+            </th>
+            <th class="col-profqual">
+                Prof. Qual.
+            </th>
+            <th class="col-eligible">
+                @Html.DisplayNameFor(model => model.CurrentStatus)
+            </th>
+            <th class="col-remarks">
+                @Html.DisplayNameFor(model => model.Remarks)
+            </th>
+            <th class="col-action"></th>
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) 
+            {
+                <tr data-app-code="@item.ApplicationCode">            
+                    <td>
+                        @Html.ActionLink(item.ApplicationCode,"ViewApplicantData","IntakeApplicant",new {applicationCode = item.ApplicationCode}, new { target = "_blank" })
+                        <input type="hidden" asp-for="@item.ApplicationCode" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.NameWithInitials)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DOB)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Age)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Overage)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ALGrades)
+                    </td>
+                    <td>
+                        @{
+                            if (item.OLMandatoryGrades != null)
+                            {
+                                string[] olgrades = item.OLMandatoryGrades.Split("|");
+                                foreach (string y in olgrades)
+                                {
+                                    <text>&bull; @y</text>
+                                    <br />
+                                }
+                            }
+                        }
+                    </td>
+                    <td>
+                        @{
+                            if (item.OLGrades != null)
+                            {
+                                string[] olgrades = item.OLGrades.Split("|");
+                                foreach (string y in olgrades)
+                                {
+                                    <text>&bull; @y</text>
+                                    <br />
+                                }
+                            }
+                        }
+                    </td>
+                    <td class="col-hequal">
+                        @{
+                            if (item.HEQual != null)
+                            {
+                                string[] hequal = item.HEQual.Split("|");
+                                foreach (string y in hequal)
+                                {
+                                    <text>&bull; @y</text>
+                                    <br />
+                                }
+                            }
+                        }
+                    </td>
+                    <td class="col-profqual">
+                        @{
+                            if (item.ProfQual != null)
+                            {
+                                string[] profqual = item.ProfQual.Split("|");
+                                foreach (string y in profqual)
+                                {
+                                    <text>&bull; @y</text>
+                                    <br />
+                                }
+                            }
+                        }
+                    </td>
+                    <td>
+                        @* <input type="checkbox" name="CurrentStatus" id="status_@i" /> OK *@
+                        <select name="CurrentStatus" id="status_@i">
+                            @{
+                                if (item.CurrentStatus == "PASS")
+                                {
+                                    <option value="PASS" selected>PASS</option>
+                                }
+                                else
+                                {
+                                    <option value="PASS">PASS</option>
+                                }
+
+                                if (item.CurrentStatus == "FAIL")
+                                {
+                                    <option value="FAIL" selected>FAIL</option>
+                                }
+                                else
+                                {
+                                    <option value="FAIL">FAIL</option>
+                                }
+
+                                if (item.CurrentStatus == "TO-CHECK")
+                                {
+                                    <option value="TO-CHECK" selected>TO-CHECK</option>
+                                }
+                                else
+                                {
+                                    <option value="TO-CHECK">TO-CHECK</option>
+                                }
+                            }
+                        </select>
+                        <input type="hidden" value="@item.CurrentStatus" name="oldstatus_@i" />
+                        <input type="hidden" asp-for="@item.CurrentStatus" id="currentstatus_@i" />
+                    </td>
+@*                     <td>
+                        @{
+                            if (item.CurrentStatus == "PASS")
+                            {
+                                <input type="checkbox" name="CurrentStatus" id="status_@i" checked/>
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="CurrentStatus" id="status_@i" />
+                            }
+                        }
+                        <input type="hidden" value="@item.CurrentStatus" name="oldstatus_@i" />
+                        <input type="hidden" asp-for="@item.CurrentStatus" id="currentstatus_@i"/>
+                    </td> *@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Remarks)
+                        <input type="hidden" asp-for="@item.Remarks" />
+                        @*<input asp-for="@item.Remarks" id="remarks_@i"/>*@
+                        <input type="text" id="newremarks_@i" name="newremarks_@i" />
+                    </td>
+                    <td>
+                        @Html.ActionLink(" ","ViewProgress",new {applicationCode = item.ApplicationCode}, new { @class="fa fa-line-chart", @style="text-decoration:none;", title = "View Progress", target = "_blank"})
+                    </td>
+                </tr>
+                i++;
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>App.Code</th>
+                <th>Name</th>
+                <th>DOB</th>
+                <th>Age</th>
+                <th>Overage</th>
+                <th>A/L</th>
+                <th>M-O/L</th>
+                <th>O/L</th>
+                <th>Higher Edu.</th>
+                <th>Prof. Qual.</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-light rounded border">
+        <h5 class="mb-0 text-muted" style="font-size: 1rem;">If you have made any changes, first click on Save before confirming the list</h5>
+        <div class="d-flex gap-2">
+            @{
+                if (ViewBag.CurrentStage != "FAIL")
+                {
+                    <button id="btnConfirm" type="button" class="btn btn-danger">Confirm & Freeze</button>
+                }
+            }
+            <button id="btnProceed" type="submit" class="btn btn-success">Save</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/lib/sweetalert/sweetalert.min.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script>
+        $(document).ready(function() 
+        {
+            $('input[type="checkbox"]').change(function (event) {
+                var ctrlId = $(this).attr('id');
+                var statusId = "#currentstatus_" + ctrlId.substring(7);
+                var remarksId = "#remarks_" + ctrlId.substring(7);
+
+                if (this.checked) {
+                    $(statusId).val("PASS");
+                }
+                else {
+                    $(statusId).val("FAIL");
+                }
+            });
+
+            $("select").on('change', function (e) {
+                var optionSelected = $("option:selected", this);
+                var valueSelected = $(this).val();
+
+                var ctrlId = $(this).attr('id');
+                var statusId = "#currentstatus_" + ctrlId.substring(7);
+                var remarksId = "#remarks_" + ctrlId.substring(7);
+
+                $(statusId).val(valueSelected);
+            });
+
+            $('#btnConfirm').click(function () {
+                var intakeCode = $("#intakeCode").val();
+                swal({
+                    title: "Are you sure to confirm & freeze?",
+                    text: "Once freezed, you will not be able to revise the list!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                    .then((willConfirm) => {
+                        if (willConfirm) {
+                            if (intakeCode.indexOf('/TP') != -1) //found
+                            {
+                                var url = '@Url.Action("ConfirmFinal", "ManualProcess", new { intakeCode = ViewBag.IntakeCode })';
+                            }
+                            else
+                            {
+                                var url = '@Url.Action("ConfirmFinal", "FilterProcess", new { intakeCode = ViewBag.IntakeCode })';
+                            }
+                            window.location.href = url;
+                        }
+                    });
+            });
+
+            const table = new DataTable('#datagrid', {
+                columnDefs: [{
+                    targets: [10, 11, 12],
+                    "orderable": false,
+                }],
+                "paging": false,
+                initComplete: function () {
+                    // Move toggle columns to the same line as the search bar (top dt-layout-start)
+                    $('.dt-layout-row:first .dt-layout-start').append($('#toggleColumnContainer'));
+                    $('#toggleColumnContainer').removeClass('d-none').addClass('d-flex');
+                    
+                    // Show table after initialization
+                    $('#tableLoader').addClass('d-none');
+                    $('.table-shell').css('visibility', 'visible');
+
+                    var r = $('#datagrid tfoot tr');
+                    r.find('th').each(function () {
+                        $(this).css('padding', 5);
+                    });
+                    $('#datagrid thead').append(r);
+
+                    this.api()
+                        .columns()
+                        .every(function (colIdx) {
+                            let column = this;
+                            let title = column.footer().textContent;
+
+                            if (colIdx == 10 || colIdx == 11 || colIdx == 12) return;
+
+                            // Create input element
+                            let input = document.createElement('input');
+                            input.style.width = '80px';
+                            input.placeholder = title;
+                            column.footer().replaceChildren(input);
+
+                            // Event listener for user input
+                            input.addEventListener('keyup', () => {
+                                if (column.search() !== this.value) {
+                                    column.search(input.value).draw();
+                                }
+
+                                if (input.value != "") {
+                                    $("#btnProceed").prop("disabled", true);
+                                    $("#btnConfirm").prop("disabled", true);
+                                } else {
+                                    $("#btnProceed").prop("disabled", false);
+                                    $("#btnConfirm").prop("disabled", false);
+                                }
+                            });
+
+                            input.addEventListener('click', function (e) {
+                                e.stopPropagation();
+                            });
+                        });
+
+
+                }
+            });
+
+            // Auto-hide columns based on template requirements
+            var olReq = '@ViewBag.OLRequired';
+            var alReq = '@ViewBag.ALRequired';
+            var heReq = '@ViewBag.HERequired';
+            
+            if (olReq == '0' || olReq == 'False' || olReq == 'false' || olReq == '') {
+                table.column(6).visible(false); // M-Grades
+                table.column(7).visible(false); // O/L
+                $('a.toggle-vis[data-column="6"]').addClass('opacity-50').removeClass('active');
+                $('a.toggle-vis[data-column="7"]').addClass('opacity-50').removeClass('active');
+            }
+            if (alReq == '0' || alReq == 'False' || alReq == 'false' || alReq == '') {
+                table.column(5).visible(false); // A/L
+                $('a.toggle-vis[data-column="5"]').addClass('opacity-50').removeClass('active');
+            }
+            if (heReq == '0' || heReq == 'False' || heReq == 'false' || heReq == '') {
+                table.column(8).visible(false); // Higher Edu.
+                $('a.toggle-vis[data-column="8"]').addClass('opacity-50').removeClass('active');
+            }
+
+            document.querySelectorAll('a.toggle-vis').forEach((el) => {
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    let columnIdx = e.target.getAttribute('data-column');
+                    let column = table.column(columnIdx);
+
+                    // Toggle the visibility
+                    var isVisible = !column.visible();
+                    column.visible(isVisible);
+                    
+                    if(isVisible) {
+                        $(this).removeClass('opacity-50').addClass('active');
+                    } else {
+                        $(this).addClass('opacity-50').removeClass('active');
+                    }
+                });
+            });
+
+            $('#dt-search-0 input').on('input', function () {
+                if ($(this).val() != "") {
+                    $("#btnProceed").prop("disabled", true);
+                }
+                else {
+                    $("#btnProceed").prop("disabled", false);
+                }
+            });
+
+            $('input[type="search"]').on('input', function () {
+                if ($(this).val() != "") {
+                    $("#btnProceed").prop("disabled", true);
+                }
+                else {
+                    $("#btnProceed").prop("disabled", false);
+                }
+            });
+        });
+    </script>
+
+    @* ── Real-Time Collaborative Screening Configuration ── *@
+    <script>
+        window.ScreeningConfig = {
+            intakeCode:     '@ViewBag.IntakeCode',
+            currentStage:   '@ViewBag.CurrentStage',
+            currentStatus:  '@(ViewBag.CurrentStatus ?? "")',
+            currentUserId:  '@(Context.User.FindFirst("UserId")?.Value ?? "")',
+            currentUserName:'@(Context.User.FindFirst("UserName")?.Value ?? "")',
+            hubUrl:         '@Url.Content("~/hubs/screening")',
+            saveUrl:        '@Url.Action("UpdateSingleApplicant", "ManualProcess")',
+            antiForgeryToken: document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+        };
+    </script>
+    <script src="~/js/screening-realtime.js" asp-append-version="true"></script>
+}
