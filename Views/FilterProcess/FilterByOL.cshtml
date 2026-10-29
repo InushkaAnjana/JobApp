@@ -160,13 +160,13 @@
     </script>
 
     @* ── Real-Time Collaborative Screening Configuration ── *@
-    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
     <script>
         window.ScreeningConfig = {
             intakeCode:     '@ViewBag.IntakeCode',
             currentStage:   '@(ViewBag.CurrentStage ?? "2")',
             currentStatus:  '@(ViewBag.CurrentStatus ?? "PASS")',
-            previousStage:  '2',
+            previousStage:  '@(ViewBag.CurrentStage ?? "2")',
             targetStage:    '3',
             currentUserId:  '@(Context.User.FindFirst("UserId")?.Value ?? Context.Session.GetString("UserId") ?? "")',
             currentUserName:'@(Context.User.FindFirst("UserName")?.Value ?? Context.Session.GetString("UserName") ?? "")',

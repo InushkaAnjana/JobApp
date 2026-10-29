@@ -32,6 +32,26 @@
 
     // ── SignalR Connection ──────────────────────────────────────────
     function initConnection() {
+        if (typeof signalR === 'undefined') {
+            console.warn('[ScreeningRT] signalR library is not yet loaded. Retrying...');
+            const script = document.createElement('script');
+            script.src = '/lib/signalr/signalr.min.js';
+            script.onload = function () {
+                if (typeof signalR !== 'undefined') {
+                    initConnection();
+                } else {
+                    console.error('[ScreeningRT] signalR still undefined after dynamic load.');
+                    setConnectionStatus('disconnected');
+                }
+            };
+            script.onerror = function () {
+                console.error('[ScreeningRT] Could not load /lib/signalr/signalr.min.js');
+                setConnectionStatus('disconnected');
+            };
+            document.head.appendChild(script);
+            return;
+        }
+
         connection = new signalR.HubConnectionBuilder()
             .withUrl(hubUrl)
             .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
@@ -485,20 +505,32 @@
 
     // ── Initialization ──────────────────────────────────────────────
     function init() {
-        // Wait for DataTables to finish rendering
-        // The page uses DataTables which may re-render the tbody
+        // Start connection immediately so user sees "Live" right away
+        initConnection();
+        window.addEventListener('beforeunload', onBeforeUnload);
+
+        // Wire row events immediately if rows are present
+        wireRowEvents();
+
+        // Re-wire events when DataTables searches, pages, or redraws
+        if (window.jQuery) {
+            $(document).on('draw.dt', '#datagrid', function () {
+                wireRowEvents();
+            });
+        }
+
+        // Check for late-rendered rows
+        let attempts = 0;
         const checkReady = setInterval(() => {
+            attempts++;
             const rows = document.querySelectorAll('#datagrid tbody tr[data-app-code]');
             if (rows.length > 0) {
-                clearInterval(checkReady);
                 wireRowEvents();
-                initConnection();
-                window.addEventListener('beforeunload', onBeforeUnload);
+                clearInterval(checkReady);
+            } else if (attempts > 50) {
+                clearInterval(checkReady);
             }
         }, 200);
-
-        // Timeout after 15 seconds
-        setTimeout(() => clearInterval(checkReady), 15000);
     }
 
     // Start when DOM is ready
