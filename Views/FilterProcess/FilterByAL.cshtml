@@ -6,7 +6,19 @@
     int i = 0;
 }
 
-<h4>@ViewData["Title"]</h4>
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h4 class="mb-0">@ViewData["Title"]</h4>
+    <div class="d-flex align-items-center gap-3">
+        <div id="activeUsersPanel" class="active-users-panel d-none">
+            <i class="fa fa-users text-muted"></i>
+            <span class="active-users-list"></span>
+        </div>
+        <div id="connectionStatus" class="connection-status status-connecting">
+            <span class="status-dot dot-connecting"></span>
+            <span class="status-text">Connecting...</span>
+        </div>
+    </div>
+</div>
 
 <form id="form" asp-action="UpdateALFilter" method="post">
     @Html.Label("Intake Code")
@@ -49,7 +61,7 @@
         <tbody>
         @foreach (var item in Model) 
         {
-            <tr>            
+            <tr data-app-code="@item.ApplicationCode">            
                 <td>
                     @*@Html.DisplayFor(modelItem => item.ApplicationCode)*@
                     @Html.ActionLink(item.ApplicationCode,"ViewApplicantData","IntakeApplicant",new {applicationCode = item.ApplicationCode}, new { target = "_blank" })
@@ -136,4 +148,22 @@
             });
         });
     </script>
+
+    @* ── Real-Time Collaborative Screening Configuration ── *@
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+    <script>
+        window.ScreeningConfig = {
+            intakeCode:     '@ViewBag.IntakeCode',
+            currentStage:   '@(ViewBag.CurrentStage ?? "1")',
+            currentStatus:  '@(ViewBag.CurrentStatus ?? "PASS")',
+            previousStage:  '1',
+            targetStage:    '2',
+            currentUserId:  '@(Context.User.FindFirst("UserId")?.Value ?? Context.Session.GetString("UserId") ?? "")',
+            currentUserName:'@(Context.User.FindFirst("UserName")?.Value ?? Context.Session.GetString("UserName") ?? "")',
+            hubUrl:         '@Url.Content("~/hubs/screening")',
+            saveUrl:        '@Url.Action("UpdateSingleApplicant", "FilterProcess")',
+            antiForgeryToken: document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+        };
+    </script>
+    <script src="~/js/screening-realtime.js" asp-append-version="true"></script>
 }
