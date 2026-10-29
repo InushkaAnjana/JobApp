@@ -107,6 +107,8 @@ namespace JobAppHR.Controllers
         public async Task<IActionResult> FilterByStage(string intakeCode, string currentStage, string currentStatus = "PASS")
         {
             ViewBag.IntakeCode = intakeCode;
+            ViewBag.CurrentStage = currentStage;
+            ViewBag.CurrentStatus = currentStatus;
 
             switch (currentStage)
             {
@@ -724,6 +726,224 @@ namespace JobAppHR.Controllers
             var message = _DBOperations.UpdateRecords("FilteredData", dataTable, "ApplicationCode");
 
             return RedirectToAction("Index", new { selectedIntakeCode = intakeCode });
+        }
+
+        /// <summary>
+        /// Per-row AJAX save for real-time collaborative screening in Auto Filtering.
+        /// Saves a single applicant's status/remarks change immediately based on stage.
+        /// </summary>
+        [HttpPost]
+        public IActionResult UpdateSingleApplicant([FromBody] SingleApplicantUpdate model)
+        {
+            try
+            {
+                User user = _UtilityFn.GetCurrentUser();
+                string userId = user.UserId;
+                string userName = user.UserName;
+
+                string remarks = "";
+
+                // Build remarks based on status change and user input
+                if (!string.IsNullOrWhiteSpace(model.NewRemarks))
+                    remarks = model.NewRemarks + "-" + userId + ",";
+
+                if (model.NewStatus == "PASS")
+                {
+                    if (string.IsNullOrEmpty(model.OldStatus) || model.OldStatus == "FAIL" || model.OldStatus == "TO-CHECK")
+                        remarks = remarks + eligibleRemark + "-" + userId + ",";
+                }
+                else if (model.NewStatus == "FAIL")
+                {
+                    if (string.IsNullOrEmpty(model.OldStatus) || model.OldStatus == "PASS" || model.OldStatus == "TO-CHECK")
+                        remarks = remarks + noneligibleRemark + "-" + userId + ",";
+                }
+                else // TO-CHECK
+                {
+                    if (string.IsNullOrEmpty(model.OldStatus) || model.OldStatus != "TO-CHECK")
+                        remarks = remarks + "need to check-" + userId + ",";
+                }
+
+                // Truncate remarks to 500 chars
+                if (remarks.Length > 500)
+                    remarks = remarks.Substring(0, 500);
+
+                DataTable dataTable = new();
+                dataTable.Columns.Add("ApplicationCode");
+                dataTable.Columns.Add("CurrentStage");
+                dataTable.Columns.Add("CurrentStatus");
+
+                DataRow dr = dataTable.NewRow();
+                dr["ApplicationCode"] = model.ApplicationCode;
+
+                string stage = model.PreviousStage ?? "";
+
+                if (stage == "0") // Age Filter -> Stage 1
+                {
+                    dataTable.Columns.Add("IntakeCode");
+                    dataTable.Columns.Add("Stage1Status");
+                    dataTable.Columns.Add("Stage1Remarks");
+                    dataTable.Columns.Add("Stage1UpdatedBy");
+                    dataTable.Columns.Add("Stage1UpdatedOn");
+
+                    dr["IntakeCode"] = model.IntakeCode;
+                    dr["CurrentStage"] = "1";
+                    dr["CurrentStatus"] = model.NewStatus;
+                    dr["Stage1Status"] = model.NewStatus;
+                    dr["Stage1Remarks"] = remarks;
+                    dr["Stage1UpdatedBy"] = userId;
+                    dr["Stage1UpdatedOn"] = DateTime.Now;
+                    dataTable.Rows.Add(dr);
+
+                    string message;
+                    DataTable existing = _DBOperations.SelectRows("FilteredData", "ApplicationCode", "ApplicationCode", model.ApplicationCode, "");
+                    if (existing.Rows.Count > 0)
+                    {
+                        message = _DBOperations.UpdateRecords("FilteredData", dataTable, "ApplicationCode");
+                    }
+                    else
+                    {
+                        message = _DBOperations.InsertRecords("FilteredData", dataTable, false);
+                    }
+
+                    // Also mark Application.Processed = YES
+                    DataTable appTable = new();
+                    appTable.Columns.Add("ApplicationCode");
+                    appTable.Columns.Add("Processed");
+                    DataRow appRow = appTable.NewRow();
+                    appRow["ApplicationCode"] = model.ApplicationCode;
+                    appRow["Processed"] = "YES";
+                    appTable.Rows.Add(appRow);
+                    _DBOperations.UpdateRecords("Application", appTable, "ApplicationCode");
+
+                    return Json(new
+                    {
+                        success = message == "SUCCESS",
+                        updatedBy = userId,
+                        updatedByName = userName,
+                        updatedOn = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        remarks = remarks
+                    });
+                }
+                else if (stage == "1") // AL Filter -> Stage 2
+                {
+                    dataTable.Columns.Add("Stage2Status");
+                    dataTable.Columns.Add("Stage2Remarks");
+                    dataTable.Columns.Add("Stage2UpdatedBy");
+                    dataTable.Columns.Add("Stage2UpdatedOn");
+
+                    dr["CurrentStage"] = "2";
+                    dr["CurrentStatus"] = model.NewStatus;
+                    dr["Stage2Status"] = model.NewStatus;
+                    dr["Stage2Remarks"] = remarks;
+                    dr["Stage2UpdatedBy"] = userId;
+                    dr["Stage2UpdatedOn"] = DateTime.Now;
+                    dataTable.Rows.Add(dr);
+
+                    string message = _DBOperations.UpdateRecords("FilteredData", dataTable, "ApplicationCode");
+                    return Json(new
+                    {
+                        success = message == "SUCCESS",
+                        updatedBy = userId,
+                        updatedByName = userName,
+                        updatedOn = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        remarks = remarks
+                    });
+                }
+                else if (stage == "2") // OL Filter -> Stage 3
+                {
+                    dataTable.Columns.Add("Stage3Status");
+                    dataTable.Columns.Add("Stage3Remarks");
+                    dataTable.Columns.Add("Stage3UpdatedBy");
+                    dataTable.Columns.Add("Stage3UpdatedOn");
+
+                    dr["CurrentStage"] = "3";
+                    dr["CurrentStatus"] = model.NewStatus;
+                    dr["Stage3Status"] = model.NewStatus;
+                    dr["Stage3Remarks"] = remarks;
+                    dr["Stage3UpdatedBy"] = userId;
+                    dr["Stage3UpdatedOn"] = DateTime.Now;
+                    dataTable.Rows.Add(dr);
+
+                    string message = _DBOperations.UpdateRecords("FilteredData", dataTable, "ApplicationCode");
+                    return Json(new
+                    {
+                        success = message == "SUCCESS",
+                        updatedBy = userId,
+                        updatedByName = userName,
+                        updatedOn = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        remarks = remarks
+                    });
+                }
+                else if (stage == "3" || (stage == "4" && (model.CurrentStage == "4" || model.NewStatus == "TO-CHECK" || model.OldStatus == "TO-CHECK"))) // HEPQ Filter
+                {
+                    dataTable.Columns.Add("Stage4Status");
+                    dataTable.Columns.Add("Stage4Remarks");
+                    dataTable.Columns.Add("Stage4UpdatedBy");
+                    dataTable.Columns.Add("Stage4UpdatedOn");
+
+                    dr["CurrentStage"] = "4";
+                    dr["CurrentStatus"] = model.NewStatus;
+                    dr["Stage4Status"] = model.NewStatus;
+                    dr["Stage4Remarks"] = remarks;
+                    dr["Stage4UpdatedBy"] = userId;
+                    dr["Stage4UpdatedOn"] = DateTime.Now;
+                    dataTable.Rows.Add(dr);
+
+                    string message = _DBOperations.UpdateRecords("FilteredData", dataTable, "ApplicationCode");
+                    return Json(new
+                    {
+                        success = message == "SUCCESS",
+                        updatedBy = userId,
+                        updatedByName = userName,
+                        updatedOn = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        remarks = remarks
+                    });
+                }
+                else // Stage 4 (FilterFinal), FINAL (ShowFinal), FAIL (ShowFail)
+                {
+                    if (stage == "FAIL")
+                    {
+                        DataTable existing = _DBOperations.SelectRows("FilteredData", "FinalRemarks", "ApplicationCode", model.ApplicationCode, "");
+                        if (existing.Rows.Count > 0 && existing.Rows[0]["FinalRemarks"] != DBNull.Value)
+                        {
+                            string prevRemarks = existing.Rows[0]["FinalRemarks"].ToString() ?? "";
+                            if (!string.IsNullOrWhiteSpace(prevRemarks) && !remarks.Contains(prevRemarks))
+                            {
+                                remarks = prevRemarks + "," + remarks;
+                                if (remarks.Length > 500)
+                                    remarks = remarks.Substring(0, 500);
+                            }
+                        }
+                    }
+
+                    dataTable.Columns.Add("FinalStatus");
+                    dataTable.Columns.Add("FinalRemarks");
+                    dataTable.Columns.Add("FinalUpdatedBy");
+                    dataTable.Columns.Add("FinalUpdatedOn");
+
+                    dr["CurrentStage"] = "FINAL";
+                    dr["CurrentStatus"] = model.NewStatus;
+                    dr["FinalStatus"] = model.NewStatus;
+                    dr["FinalRemarks"] = remarks;
+                    dr["FinalUpdatedBy"] = userId;
+                    dr["FinalUpdatedOn"] = DateTime.Now;
+                    dataTable.Rows.Add(dr);
+
+                    string message = _DBOperations.UpdateRecords("FilteredData", dataTable, "ApplicationCode");
+                    return Json(new
+                    {
+                        success = message == "SUCCESS",
+                        updatedBy = userId,
+                        updatedByName = userName,
+                        updatedOn = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        remarks = remarks
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
         }
 
         public ActionResult ConfirmFinal(string intakeCode) 

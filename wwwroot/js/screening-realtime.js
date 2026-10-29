@@ -107,16 +107,29 @@
         const row = findRow(applicationCode);
         if (!row) return;
 
-        // Update the select dropdown
+        // Update the select dropdown if present
         const select = row.querySelector('select[name="CurrentStatus"]');
         if (select) {
             select.value = newStatus;
-            // Also update the hidden field
-            const hiddenStatus = row.querySelector('input[id^="currentstatus_"]');
-            if (hiddenStatus) hiddenStatus.value = newStatus;
-            // Update the old status hidden
-            const oldStatus = row.querySelector('input[name^="oldstatus_"]');
-            if (oldStatus) oldStatus.value = newStatus;
+        }
+
+        // Update checkbox if present
+        const checkbox = row.querySelector('input[type="checkbox"][id^="status_"]') || row.querySelector('input[type="checkbox"][name="CurrentStatus"]');
+        if (checkbox) {
+            checkbox.checked = (newStatus === 'PASS');
+        }
+
+        // Also update the hidden field
+        const hiddenStatus = row.querySelector('input[id^="currentstatus_"]');
+        if (hiddenStatus) hiddenStatus.value = newStatus;
+        // Update the old status hidden
+        const oldStatus = row.querySelector('input[name^="oldstatus_"]');
+        if (oldStatus) oldStatus.value = newStatus;
+
+        // Update remarks if provided
+        const remarksInput = row.querySelector('input[id^="newremarks_"]') || row.querySelector('input[id^="remarks_"]') || row.querySelector('input[name="Remarks"]');
+        if (remarksInput && newRemarks) {
+            remarksInput.value = newRemarks;
         }
 
         // Flash the row to indicate remote update
@@ -137,8 +150,10 @@
 
         // Disable controls
         const select = row.querySelector('select[name="CurrentStatus"]');
-        const remarksInput = row.querySelector('input[type="text"][id^="newremarks_"]');
+        const checkbox = row.querySelector('input[type="checkbox"][id^="status_"]') || row.querySelector('input[type="checkbox"][name="CurrentStatus"]');
+        const remarksInput = row.querySelector('input[id^="newremarks_"]') || row.querySelector('input[id^="remarks_"]') || row.querySelector('input[name="Remarks"]');
         if (select) select.disabled = true;
+        if (checkbox) checkbox.disabled = true;
         if (remarksInput) remarksInput.disabled = true;
 
         // Add lock badge
@@ -163,8 +178,10 @@
 
         // Re-enable controls
         const select = row.querySelector('select[name="CurrentStatus"]');
-        const remarksInput = row.querySelector('input[type="text"][id^="newremarks_"]');
+        const checkbox = row.querySelector('input[type="checkbox"][id^="status_"]') || row.querySelector('input[type="checkbox"][name="CurrentStatus"]');
+        const remarksInput = row.querySelector('input[id^="newremarks_"]') || row.querySelector('input[id^="remarks_"]') || row.querySelector('input[name="Remarks"]');
         if (select) select.disabled = false;
+        if (checkbox) checkbox.disabled = false;
         if (remarksInput) remarksInput.disabled = false;
 
         // Remove lock badge
@@ -251,8 +268,8 @@
         const payload = {
             applicationCode: applicationCode,
             intakeCode: intakeCode,
-            currentStage: 'FINAL',
-            previousStage: currentStage,
+            currentStage: config.targetStage || currentStage || 'FINAL',
+            previousStage: config.previousStage !== undefined ? String(config.previousStage) : currentStage,
             newStatus: newStatus,
             oldStatus: oldStatus,
             newRemarks: newRemarks
@@ -304,7 +321,7 @@
         if (!indicator) {
             indicator = document.createElement('span');
             indicator.className = 'save-indicator';
-            const statusCell = row.querySelector('td:nth-child(11)'); // Status column
+            const statusCell = (row.querySelector('select[name="CurrentStatus"]') || row.querySelector('input[type="checkbox"][id^="status_"]') || row.querySelector('input[type="checkbox"][name="CurrentStatus"]'))?.closest('td') || row.querySelector('td:last-child');
             if (statusCell) statusCell.appendChild(indicator);
         }
 
@@ -327,12 +344,12 @@
                 break;
             case 'error':
                 indicator.innerHTML = '<i class="fa fa-exclamation-triangle"></i>';
-                indicator.title = 'Save failed — click Save All to retry';
+                indicator.title = 'Save failed — click Save/Proceed to retry';
                 break;
         }
     }
 
-    // ── Row Focus/Blur (Lock Management) ────────────────────────────
+    // ── Row Focus/Blur (Lock Management) ────────────────────
     const rowLockTimers = {}; // applicationCode -> timeout handle
 
     function onRowControlFocus(applicationCode) {
@@ -355,7 +372,7 @@
             clearTimeout(rowLockTimers[applicationCode + '_safety']);
             delete rowLockTimers[applicationCode + '_safety'];
         }
-        // Delay unlock slightly to allow tab between select and remarks
+        // Delay unlock slightly to allow tab between select/checkbox and remarks
         rowLockTimers[applicationCode] = setTimeout(() => {
             sendUnlockRow(applicationCode);
             delete rowLockTimers[applicationCode];
@@ -371,43 +388,56 @@
             if (!applicationCode) return;
 
             const select = row.querySelector('select[name="CurrentStatus"]');
-            const remarksInput = row.querySelector('input[type="text"][id^="newremarks_"]');
+            const checkbox = row.querySelector('input[type="checkbox"][id^="status_"]') || row.querySelector('input[type="checkbox"][name="CurrentStatus"]');
+            const hiddenStatus = row.querySelector('input[id^="currentstatus_"]');
+            const remarksInput = row.querySelector('input[id^="newremarks_"]') || row.querySelector('input[id^="remarks_"]') || row.querySelector('input[name="Remarks"]');
 
-            // ─ Focus/Blur for locking ─
+            // ─ Focus/Blur & Change for Select ─
             if (select) {
                 select.addEventListener('focus', () => onRowControlFocus(applicationCode));
                 select.addEventListener('blur', () => onRowControlBlur(applicationCode));
 
-                // ─ Status change → auto-save ─
                 select.addEventListener('change', function () {
                     const newStatus = this.value;
-                    const hiddenStatus = row.querySelector('input[id^="currentstatus_"]');
                     if (hiddenStatus) hiddenStatus.value = newStatus;
 
                     const oldStatusInput = row.querySelector('input[name^="oldstatus_"]');
                     const oldStatus = oldStatusInput ? oldStatusInput.value : '';
 
-                    const remarksEl = row.querySelector('input[type="text"][id^="newremarks_"]');
-                    const newRemarks = remarksEl ? remarksEl.value : '';
+                    const newRemarks = remarksInput ? remarksInput.value : '';
 
                     debouncedSave(applicationCode, newStatus, oldStatus, newRemarks);
                 });
             }
 
+            // ─ Focus/Blur & Change for Checkbox ─
+            if (checkbox) {
+                checkbox.addEventListener('focus', () => onRowControlFocus(applicationCode));
+                checkbox.addEventListener('blur', () => onRowControlBlur(applicationCode));
+
+                checkbox.addEventListener('change', function () {
+                    const newStatus = this.checked ? 'PASS' : 'FAIL';
+                    if (hiddenStatus) hiddenStatus.value = newStatus;
+
+                    const oldStatus = this.checked ? 'FAIL' : 'PASS';
+                    const newRemarks = remarksInput ? remarksInput.value : '';
+
+                    debouncedSave(applicationCode, newStatus, oldStatus, newRemarks);
+                });
+            }
+
+            // ─ Focus/Blur & Auto-save for Remarks ─
             if (remarksInput) {
                 remarksInput.addEventListener('focus', () => onRowControlFocus(applicationCode));
                 remarksInput.addEventListener('blur', () => {
                     onRowControlBlur(applicationCode);
 
-                    // Save on blur if remarks were changed
+                    // Save on blur if remarks were changed or status is present
                     const remarksValue = remarksInput.value.trim();
-                    if (remarksValue) {
-                        const selectEl = row.querySelector('select[name="CurrentStatus"]');
-                        const newStatus = selectEl ? selectEl.value : '';
-                        const oldStatusInput = row.querySelector('input[name^="oldstatus_"]');
-                        const oldStatus = oldStatusInput ? oldStatusInput.value : '';
-                        debouncedSave(applicationCode, newStatus, oldStatus, remarksValue);
-                    }
+                    const newStatus = select ? select.value : (checkbox ? (checkbox.checked ? 'PASS' : 'FAIL') : (hiddenStatus ? hiddenStatus.value : 'PASS'));
+                    const oldStatusInput = row.querySelector('input[name^="oldstatus_"]');
+                    const oldStatus = oldStatusInput ? oldStatusInput.value : '';
+                    debouncedSave(applicationCode, newStatus, oldStatus, remarksValue);
                 });
             }
         });
